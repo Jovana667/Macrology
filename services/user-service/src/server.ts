@@ -1,21 +1,21 @@
 import express, { Express } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-// import foodRoutes from './routes/foodRoutes';
 import pool from "./utils/db";
 
 dotenv.config();
 
 const app: Express = express();
-const PORT = process.env.PORT || 3002;
+const PORT = process.env.PORT || 3004;
 
 app.use(cors());
 app.use(express.json());
 
-// app.use('/api/foods', foodRoutes);
+// TODO: Add user routes here when ready
+// app.use('/api/users', userRoutes);
 
 app.get("/health", (req, res) => {
-  res.json({ status: "ok", service: "food-service" });
+  res.json({ status: "ok", service: "user-service" });
 });
 
 async function testDatabaseConnection() {
@@ -30,7 +30,7 @@ async function testDatabaseConnection() {
 
 testDatabaseConnection().then(() => {
   app.listen(PORT, () => {
-    console.log(`🚀 Food service running on port ${PORT}`);
+    console.log(`🚀 User service running on port ${PORT}`);
   });
 });
 
