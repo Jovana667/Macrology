@@ -19,10 +19,10 @@ async function seed() {
 
     for (const food of allFoods) {
       await pool.query(
-        `INSERT INTO foods (name, category, protein, carbs, fat, calories, serving_size)
-         VALUES ($1, $2, $3, $4, $5, $6, $7)
-         ON CONFLICT DO NOTHING`,
-        [food.name, food.category, food.protein, food.carbs, food.fat, food.calories, food.serving_size]
+        `INSERT INTO foods(name, category, protein_per_100g, fat_per_100g, carbs_per_100g, calories_per_100g)
+        VALUES ($1, $2, $3, $4, $5, $6)
+        ON CONFLICT DO NOTHING`,
+        [food.name, food.category, food.protein_per_100g, food.carbs_per_100g, food.fat_per_100g, food.calories_per_100g  , food.serving_size]
       );
     }
 
