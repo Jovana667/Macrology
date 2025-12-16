@@ -1,6 +1,6 @@
 CREATE TABLE foods (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
+    name VARCHAR(100) UNIQUE NOT NULL,
     category VARCHAR(50),
     protein_per_100g DECIMAL(5,2),
     fat_per_100g DECIMAL(5,2),
