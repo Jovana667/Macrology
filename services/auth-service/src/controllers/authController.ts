@@ -3,19 +3,48 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import pool from '../utils/db';
 import { RegisterRequest, LoginRequest, JWTPayload } from '../types';
+import { validateEmail, validatePassword } from '../utils/validation';
 
 export const register = async (req: Request, res: Response) => {
   try {
-    const { email, password }: RegisterRequest = req.body;
+const { username, email, password }: RegisterRequest = req.body;
 
     // TODO: Add validation
-    // TODO: Check if user exists
-    // TODO: Hash password
-    // TODO: Insert user into database
-    // TODO: Return user info (without password)
+if (!validateEmail(email)) {
+    return res.status(400).json({ error: 'Invalid email format' });
+}
 
-    res.status(201).json({ message: 'Registration endpoint - to be implemented' });
-  } catch (error) {
+if (!validatePassword(password)) {
+    return res.status(400).json({ error: 'Password does not meet requirements' });
+}
+    // TODO: Check if user exists
+const checkResult = await pool.query(
+    'SELECT * FROM users WHERE email = $1',
+    [email]
+);
+
+const userExists = checkResult.rows.length > 0;
+
+if (userExists) {  // Check FIRST
+    return res.status(409).json({ error: 'Email already taken' });
+}
+
+// THEN hash (only if user doesn't exist)
+const hashedPassword = await bcrypt.hash(password, 10);
+
+    // TODO: Insert user into database
+const result = await pool.query(
+    'INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3) RETURNING id, username, email, created_at',
+    [username, email, hashedPassword]
+);
+const newUser = result.rows[0];
+
+    // TODO: Return user info (without password)
+res.status(201).json({ 
+    message: 'User registered successfully',
+    user: newUser  // This contains id, username, email, created_at (no password!)
+});
+  } catch (error) {  // ← Need this!
     console.error('Registration error:', error);
     res.status(500).json({ error: 'Registration failed' });
   }
