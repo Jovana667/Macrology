@@ -1,10 +1,12 @@
+import dotenv from "dotenv"; // Loads .env file
+
+// Load environment variables FIRST before any other imports that use them
+dotenv.config();
+
 import express, { Express } from "express"; // Gets the web framework
 import cors from "cors"; // Allows frontend to talk to backend
-import dotenv from "dotenv"; // Loads .env file
 import authRoutes from "./routes/authRoutes"; // Gets your login/register routes
 import pool from "./utils/db";
-
-dotenv.config(); // ← Reads .env file and loads DATABASE_URL, PORT, etc.
 
 const app: Express = express(); // Creates your web server
 const PORT = process.env.PORT || 3001; // Uses PORT from .env, or 3001 as fallback
