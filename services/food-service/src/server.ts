@@ -1,10 +1,12 @@
+import dotenv from "dotenv";
+
+// Load environment variables FIRST before any other imports that use them
+dotenv.config();
+
 import express, { Express } from "express";
 import cors from "cors";
-import dotenv from "dotenv";
-// import foodRoutes from './routes/foodRoutes';
+import foodRoutes from "./routes/foodRoutes";
 import pool from "./utils/db";
-
-dotenv.config();
 
 const app: Express = express();
 const PORT = process.env.PORT || 3002;
@@ -12,7 +14,7 @@ const PORT = process.env.PORT || 3002;
 app.use(cors());
 app.use(express.json());
 
-// app.use('/api/foods', foodRoutes);
+app.use("/api/foods", foodRoutes);
 
 app.get("/health", (req, res) => {
   res.json({ status: "ok", service: "food-service" });
