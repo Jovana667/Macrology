@@ -92,3 +92,55 @@ export const getFoods = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Failed to retrieve foods" });
   }
 };
+
+export const getFoodById = async (req: Request, res: Response) => {
+  try {
+    // STEP 1: Extract the ID from the URL path
+    // Example: /api/foods/5 → req.params.id = "5" (as a string!)
+    const idParam = req.params.id;
+
+    // STEP 2: Validate that the ID is a valid number
+    // parseInt converts string to number: "5" → 5, "abc" → NaN
+    const id = parseInt(idParam);
+
+    // Check if conversion failed (user sent /api/foods/abc)
+    if (isNaN(id)) {
+      return res.status(400).json({
+        error: "Invalid food ID format. ID must be a number.",
+      });
+    }
+
+    // STEP 3: Query the database for the food with this ID
+    const query = `
+      SELECT 
+        id,
+        name,
+        category,
+        protein_per_100g,
+        fat_per_100g,
+        carbs_per_100g,
+        calories_per_100g,
+        created_at,
+        updated_at
+      FROM foods
+      WHERE id = $1
+    `;
+
+    const result = await pool.query(query, [id]);
+
+    // STEP 4: Check if the food exists
+    // If query returns 0 rows, the food doesn't exist in the database
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        error: `Food with ID ${id} not found`,
+      });
+    }
+
+    // STEP 5: Return the food object
+    // No need to wrap it in an object, just send the food directly
+    res.status(200).json(result.rows[0]);
+  } catch (error) {
+    console.error("Get food by ID error:", error);
+    res.status(500).json({ error: "Failed to retrieve food" });
+  }
+};
