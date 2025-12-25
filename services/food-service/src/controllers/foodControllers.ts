@@ -144,3 +144,44 @@ export const getFoodById = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Failed to retrieve food" });
   }
 };
+
+export const searchFoods = async (req: Request, res: Response) => {
+  try {
+    // STEP 1: Get the search query parameter
+    // Example: /api/foods/search?q=chicken
+    const query = (req.query.q as string) || "";
+
+    // STEP 2: Handle empty query
+    // Return empty array if no search term provided
+    if (!query.trim()) {
+      return res.json([]);
+    }
+
+    // STEP 3: Search database for matching foods
+    // ILIKE is case-insensitive
+    // %query% matches anywhere in the name
+    // LIMIT 10 for fast autocomplete (no pagination needed)
+    const result = await pool.query(
+      `SELECT 
+        id,
+        name,
+        category,
+        protein_per_100g,
+        fat_per_100g,
+        carbs_per_100g,
+        calories_per_100g
+      FROM foods 
+      WHERE name ILIKE $1 
+      ORDER BY name ASC 
+      LIMIT 10`,
+      [`%${query}%`]
+    );
+
+    // STEP 4: Return just the array (no pagination wrapper)
+    // Frontend expects simple array for autocomplete dropdown
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Search foods error:", error);
+    res.status(500).json({ error: "Failed to search foods" });
+  }
+};
