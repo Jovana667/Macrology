@@ -1,9 +1,12 @@
+import dotenv from "dotenv";
+
+// Load environment variables FIRST
+dotenv.config();
+
 import express, { Express } from "express";
 import cors from "cors";
-import dotenv from "dotenv";
+import mealRoutes from "./routes/mealRoutes";
 import pool from "./utils/db";
-
-dotenv.config();
 
 const app: Express = express();
 const PORT = process.env.PORT || 3003;
@@ -11,8 +14,8 @@ const PORT = process.env.PORT || 3003;
 app.use(cors());
 app.use(express.json());
 
-// TODO: Add meal routes here when ready
-// app.use('/api/meals', mealRoutes);
+// Meal routes
+app.use("/api/meals", mealRoutes);
 
 app.get("/health", (req, res) => {
   res.json({ status: "ok", service: "meal-service" });
