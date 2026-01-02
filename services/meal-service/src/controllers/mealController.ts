@@ -1,6 +1,13 @@
 import { Request, Response } from "express";
 import pool from "../utils/db";
-import { CreateMealRequest, MealFoodItem, Food, MealTotals } from "../types";
+import {
+  CreateMealRequest,
+  MealFoodItem,
+  Food,
+  MealTotals,
+  MealDetail,
+  FoodInMeal,
+} from "../types";
 
 export const createMeal = async (req: Request, res: Response) => {
   // START A DATABASE CLIENT FOR TRANSACTION
@@ -249,5 +256,139 @@ export const getMeals = async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Get meals error:", error);
     res.status(500).json({ error: "Failed to retrieve meals" });
+  }
+};
+
+export const getMealById = async (req: Request, res: Response) => {
+  try {
+    // STEP 1: Get authenticated user's ID and meal ID
+    const userId = req.user?.id;
+    const mealId = parseInt(req.params.id);
+
+    if (!userId) {
+      return res.status(401).json({ error: "User not authenticated" });
+    }
+
+    // STEP 2: Validate meal ID
+    if (isNaN(mealId)) {
+      return res.status(400).json({ error: "Invalid meal ID" });
+    }
+
+    // STEP 3: Query meal details with foods
+    // First, check if meal exists and belongs to user
+    const mealCheckQuery = `
+      SELECT 
+        id,
+        user_id,
+        name,
+        meal_type,
+        meal_date,
+        is_template,
+        created_at,
+        updated_at
+      FROM meals
+      WHERE id = $1
+    `;
+
+    const mealCheckResult = await pool.query(mealCheckQuery, [mealId]);
+
+    // Check if meal exists
+    if (mealCheckResult.rows.length === 0) {
+      return res.status(404).json({ error: "Meal not found" });
+    }
+
+    const meal = mealCheckResult.rows[0];
+
+    // Check if meal belongs to the authenticated user
+    if (meal.user_id !== userId) {
+      return res.status(404).json({ error: "Meal not found" });
+    }
+
+    // STEP 4: Get all foods in the meal with complete nutrition data
+    const foodsQuery = `
+      SELECT 
+        mf.id,
+        mf.food_id,
+        mf.servings,
+        mf.quantity_g,
+        f.name,
+        f.category,
+        f.protein_per_100g,
+        f.fat_per_100g,
+        f.carbs_per_100g,
+        f.calories_per_100g
+      FROM meal_foods mf
+      JOIN foods f ON mf.food_id = f.id
+      WHERE mf.meal_id = $1
+      ORDER BY mf.created_at ASC
+    `;
+
+    const foodsResult = await pool.query(foodsQuery, [mealId]);
+
+    // STEP 5: Calculate nutrition values for each food and totals
+    let totalProtein = 0;
+    let totalFat = 0;
+    let totalCarbs = 0;
+    let totalCalories = 0;
+
+    const foods: FoodInMeal[] = foodsResult.rows.map((food: any) => {
+      // Calculate grams: use quantity_g if provided, otherwise assume 100g per serving
+      const grams =
+        food.quantity_g || (food.servings ? food.servings * 100 : 0);
+      const multiplier = grams / 100;
+
+      // Calculate actual nutrition values based on the amount consumed
+      const actualProtein = food.protein_per_100g * multiplier;
+      const actualFat = food.fat_per_100g * multiplier;
+      const actualCarbs = food.carbs_per_100g * multiplier;
+      const actualCalories = food.calories_per_100g * multiplier;
+
+      // Add to totals
+      totalProtein += actualProtein;
+      totalFat += actualFat;
+      totalCarbs += actualCarbs;
+      totalCalories += actualCalories;
+
+      return {
+        id: food.id,
+        food_id: food.food_id,
+        name: food.name,
+        category: food.category,
+        servings: food.servings,
+        quantity_g: food.quantity_g,
+        protein_per_100g: parseFloat(food.protein_per_100g),
+        fat_per_100g: parseFloat(food.fat_per_100g),
+        carbs_per_100g: parseFloat(food.carbs_per_100g),
+        calories_per_100g: parseFloat(food.calories_per_100g),
+        actual_protein: Math.round(actualProtein * 100) / 100,
+        actual_fat: Math.round(actualFat * 100) / 100,
+        actual_carbs: Math.round(actualCarbs * 100) / 100,
+        actual_calories: Math.round(actualCalories * 100) / 100,
+      };
+    });
+
+    // STEP 6: Prepare response with complete meal details
+    const mealDetail: MealDetail = {
+      id: meal.id,
+      user_id: meal.user_id,
+      name: meal.name,
+      meal_type: meal.meal_type,
+      meal_date: meal.meal_date,
+      is_template: meal.is_template,
+      created_at: meal.created_at,
+      updated_at: meal.updated_at,
+      foods: foods,
+      totals: {
+        total_protein: Math.round(totalProtein * 100) / 100,
+        total_fat: Math.round(totalFat * 100) / 100,
+        total_carbs: Math.round(totalCarbs * 100) / 100,
+        total_calories: Math.round(totalCalories * 100) / 100,
+      },
+    };
+
+    res.status(200).json(mealDetail);
+  } catch (error) {
+    console.error("Get meal by ID error:", error);
+    res.status(500).json({ error: "Failed to retrieve meal" });
   }
 };

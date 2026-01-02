@@ -1,11 +1,18 @@
 import { Router } from "express";
-import { createMeal, getMeals } from "../controllers/mealController";
+import {
+  createMeal,
+  getMeals,
+  getMealById,
+} from "../controllers/mealController";
 import { verifyToken } from "../middleware/auth";
 
 const router = Router();
 
 // Get all meals for authenticated user (with pagination)
 router.get("/", verifyToken, getMeals);
+
+// Get a specific meal by ID (protected route - requires authentication)
+router.get("/:id", verifyToken, getMealById);
 
 // Create a new meal (protected route - requires authentication)
 router.post("/", verifyToken, createMeal);
