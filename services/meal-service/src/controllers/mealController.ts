@@ -180,3 +180,74 @@ export const createMeal = async (req: Request, res: Response) => {
     client.release();
   }
 };
+
+export const getMeals = async (req: Request, res: Response) => {
+  try {
+    // STEP 1: Get authenticated user's ID from the token
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({ error: "User not authenticated" });
+    }
+
+    // STEP 2: Extract pagination parameters from query string
+    // Example: /api/meals?page=2&pageSize=10
+    const page = parseInt(req.query.page as string) || 1;
+    const pageSize = parseInt(req.query.pageSize as string) || 20;
+
+    // Calculate offset for pagination
+    // Page 1: skip 0 items
+    // Page 2: skip 20 items
+    // Page 3: skip 40 items
+    const offset = (page - 1) * pageSize;
+
+    // STEP 3: Query meals with food count
+    // LEFT JOIN ensures we get meals even if they have 0 foods
+    // GROUP BY is required when using COUNT()
+    const mealsQuery = `
+      SELECT 
+        m.id,
+        m.name,
+        m.meal_type,
+        m.meal_date,
+        m.is_template,
+        m.created_at,
+        m.updated_at,
+        COUNT(mf.id)::INTEGER as food_count
+      FROM meals m
+      LEFT JOIN meal_foods mf ON m.id = mf.meal_id
+      WHERE m.user_id = $1
+      GROUP BY m.id
+      ORDER BY m.created_at DESC
+      LIMIT $2 OFFSET $3
+    `;
+
+    const mealsResult = await pool.query(mealsQuery, [
+      userId,
+      pageSize,
+      offset,
+    ]);
+
+    // STEP 4: Get total count of user's meals (for pagination)
+    const countQuery = `
+      SELECT COUNT(*)::INTEGER as total
+      FROM meals
+      WHERE user_id = $1
+    `;
+
+    const countResult = await pool.query(countQuery, [userId]);
+    const total = countResult.rows[0].total;
+
+    // STEP 5: Return paginated response
+    res.status(200).json({
+      meals: mealsResult.rows,
+      total: total,
+      page: page,
+      pageSize: pageSize,
+      totalPages: Math.ceil(total / pageSize),
+    });
+  } catch (error) {
+    console.error("Get meals error:", error);
+    res.status(500).json({ error: "Failed to retrieve meals" });
+  }
+};
