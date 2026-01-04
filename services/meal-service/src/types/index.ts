@@ -25,6 +25,7 @@ export interface Food {
   fat_per_100g: number;
   carbs_per_100g: number;
   calories_per_100g: number;
+  dietary_restrictions?: string;
 }
 
 export interface MealTotals {
@@ -62,4 +63,12 @@ export interface MealDetail {
   updated_at: string;
   foods: FoodInMeal[];
   totals: MealTotals;
+}
+
+export interface UpdateProfileRequest {
+  target_calories?: number;
+  target_protein_g?: number;
+  target_carbs_g?: number;
+  target_fat_g?: number;
+  dietary_restrictions?: string;
 }
