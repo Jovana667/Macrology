@@ -53,19 +53,20 @@ export const createNutritionGoal = async (req: Request, res: Response) => {
 
 export const getNutritionGoalByUserId = async (req: Request, res: Response) => {
     try {
-        const userIdParam = req.params.userId;
-        const userId = parseInt(userIdParam);
-        if (isNaN(userId)) {
-            return res.status(400).json({ error: "Invalid user ID format. ID must be a number." });
-        }
+        const userId = req.user?.id;
+if (!userId) {
+    return res.status(401).json({ error: "User not authenticated" });
+}
         const query = `
-            SELECT id, target_calories, target_protein_g, target_fat_g, target_carbs_g
-            FROM user_profile
+            SELECT id, target_calories, target_protein_g, target_fat_g, target_carbs_g, dietary_restrictions
+            FROM user_profiles
             WHERE user_id = $1
         `;
         const result = await pool.query(query, [userId]);
         if (result.rows.length === 0) {
-            return res.status(404).json({ error: `Nutrition goal for user ID ${userId} not found` });
+            return res.status(200).json(
+                { target_calories: null, target_protein_g: null, target_fat_g: null, target_carbs_g: null, dietary_restrictions: null }
+            );
         }
         res.status(200).json(result.rows[0]);
     } catch (error) {

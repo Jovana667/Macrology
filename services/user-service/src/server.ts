@@ -2,6 +2,7 @@ import express, { Express } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import pool from "./utils/db";
+import userRoutes from "./routes/userRoutes";
 
 dotenv.config();
 
@@ -11,8 +12,7 @@ const PORT = process.env.PORT || 3004;
 app.use(cors());
 app.use(express.json());
 
-// TODO: Add user routes here when ready
-// app.use('/api/users', userRoutes);
+app.use('/api/users', userRoutes);
 
 app.get("/health", (req, res) => {
   res.json({ status: "ok", service: "user-service" });
