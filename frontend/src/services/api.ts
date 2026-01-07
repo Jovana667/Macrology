@@ -30,6 +30,24 @@ const userApi = axios.create({
 });
 
 
+// Interceptor to automatically add token to requests
+const addTokenInterceptor = (apiInstance: any) => {
+  apiInstance.interceptors.request.use((config: any) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  });
+};
+
+// Apply interceptor to all instances that need authentication
+addTokenInterceptor(userApi);
+addTokenInterceptor(mealApi);
+addTokenInterceptor(foodApi);
+// authApi doesn't need it (login/register don't require tokens)
+
+
 // Authentication
 export const login = async (email: string, password: string) => {
   const response = await authApi.post('/login', { email, password });
@@ -38,5 +56,32 @@ export const login = async (email: string, password: string) => {
 
 export const register = async (email: string, password: string) => {
   const response = await authApi.post('/register', { email, password });
+  return response.data;
+};
+
+// profile
+export const getUserProfile = async () => {
+  const response = await userApi.get('/profile');
+  return response.data;
+};
+
+export const updateUserProfile = async (profileData: any) => {
+  const response = await userApi.put('/profile', profileData);
+  return response.data;
+};
+
+// meals
+export const getMeals = async () => {
+  const response = await mealApi.get('/meals');
+  return response.data;
+}
+
+export const createMeal = async (mealData: any) => {
+  const response = await mealApi.post('/meals', mealData);
+  return response.data;
+};
+
+export const getMealById = async (mealId: number) => {
+  const response = await mealApi.get(`/meals/${mealId}`);
   return response.data;
 };
