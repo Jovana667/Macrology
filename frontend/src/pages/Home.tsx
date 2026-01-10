@@ -1,6 +1,41 @@
 import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { getFoods } from "../services/api";
 
 function Home() {
+  const [foods, setFoods] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
+
+  const toggleCategory = (category: string) => {
+    if (expandedCategories.includes(category)) {
+      setExpandedCategories(expandedCategories.filter((c) => c !== category));
+    } else {
+      setExpandedCategories([...expandedCategories, category]);
+    }
+  };
+
+  const groupedFoods = {
+    protein: foods.filter((f) => f.category === "protein"),
+    carbs: foods.filter((f) => f.category === "carbs"),
+    fats: foods.filter((f) => f.category === "fats"),
+  };
+
+  useEffect(() => {
+    const fetchFoods = async () => {
+      try {
+        const data = await getFoods();
+        console.log("Foods fetched successfully:", data);
+        setFoods(data.foods || []); // Access data.foods array
+      } catch (error) {
+        console.error("Failed to fetch foods:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFoods();
+  }, []);
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-7xl mx-auto">
@@ -19,47 +54,126 @@ function Home() {
           </div>
         </header>
 
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-2xl font-semibold mb-4">Meal Planner</h2>
-          <p className="text-gray-600 mb-6">
-            Drag and drop interface coming soon! Build your meals and track your
-            macros.
-          </p>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left side - Meal Planner (2/3 width) */}
+          <div className="lg:col-span-2 bg-white rounded-lg shadow p-6">
+            <h2 className="text-2xl font-semibold mb-4">Meal Planner</h2>
 
-          {/* Placeholder for meal structure */}
-          <div className="space-y-6">
-            <div>
-              <h3 className="font-semibold text-lg mb-2">Breakfast: 0 cal</h3>
-              <div className="border-2 border-dashed border-gray-300 rounded p-4 text-gray-400">
-                Drop foods here
+            {/* Placeholder for meal structure */}
+            <div className="space-y-6">
+              <div>
+                <h3 className="font-semibold text-lg mb-2">Breakfast: 0 cal</h3>
+                <div className="border-2 border-dashed border-gray-300 rounded p-4 text-gray-400">
+                  Drop foods here
+                </div>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-lg mb-2">Lunch: 0 cal</h3>
+                <div className="border-2 border-dashed border-gray-300 rounded p-4 text-gray-400">
+                  Drop foods here
+                </div>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-lg mb-2">Dinner: 0 cal</h3>
+                <div className="border-2 border-dashed border-gray-300 rounded p-4 text-gray-400">
+                  Drop foods here
+                </div>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-lg mb-2">Snack: 0 cal</h3>
+                <div className="border-2 border-dashed border-gray-300 rounded p-4 text-gray-400">
+                  Drop foods here
+                </div>
               </div>
             </div>
 
-            <div>
-              <h3 className="font-semibold text-lg mb-2">Lunch: 0 cal</h3>
-              <div className="border-2 border-dashed border-gray-300 rounded p-4 text-gray-400">
-                Drop foods here
-              </div>
-            </div>
-
-            <div>
-              <h3 className="font-semibold text-lg mb-2">Dinner: 0 cal</h3>
-              <div className="border-2 border-dashed border-gray-300 rounded p-4 text-gray-400">
-                Drop foods here
-              </div>
-            </div>
-
-            <div>
-              <h3 className="font-semibold text-lg mb-2">Snack: 0 cal</h3>
-              <div className="border-2 border-dashed border-gray-300 rounded p-4 text-gray-400">
-                Drop foods here
-              </div>
-            </div>
+            <button className="mt-6 bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700">
+              Save Meal
+            </button>
           </div>
 
-          <button className="mt-6 bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700">
-            Save Meal
-          </button>
+          {/* Right side - Food Sidebar (1/3 width) */}
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-xl font-semibold mb-4">Foods</h2>
+
+            {/* Protein Category */}
+            <div className="mb-4">
+              <button
+                onClick={() => toggleCategory("protein")}
+                className="w-full flex justify-between items-center p-2 hover:bg-gray-100 rounded"
+              >
+                <span className="font-medium">
+                  ➕ Protein ({groupedFoods.protein.length})
+                </span>
+              </button>
+
+              {expandedCategories.includes("protein") && (
+                <div className="mt-2 space-y-1">
+                  {groupedFoods.protein.map((food) => (
+                    <div
+                      key={food.id}
+                      className="p-2 hover:bg-blue-50 cursor-pointer rounded text-sm"
+                    >
+                      {food.name}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Carbs Category */}
+            <div className="mb-4">
+              <button
+                onClick={() => toggleCategory("carbs")}
+                className="w-full flex justify-between items-center p-2 hover:bg-gray-100 rounded"
+              >
+                <span className="font-medium">
+                  ➕ Carbs ({groupedFoods.carbs.length})
+                </span>
+              </button>
+
+              {expandedCategories.includes("carbs") && (
+                <div className="mt-2 space-y-1">
+                  {groupedFoods.carbs.map((food) => (
+                    <div
+                      key={food.id}
+                      className="p-2 hover:bg-blue-50 cursor-pointer rounded text-sm"
+                    >
+                      {food.name}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Fats Category */}
+            <div className="mb-4">
+              <button
+                onClick={() => toggleCategory("fats")}
+                className="w-full flex justify-between items-center p-2 hover:bg-gray-100 rounded"
+              >
+                <span className="font-medium">
+                  ➕ Fats ({groupedFoods.fats.length})
+                </span>
+              </button>
+
+              {expandedCategories.includes("fats") && (
+                <div className="mt-2 space-y-1">
+                  {groupedFoods.fats.map((food) => (
+                    <div
+                      key={food.id}
+                      className="p-2 hover:bg-blue-50 cursor-pointer rounded text-sm"
+                    >
+                      {food.name}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>
