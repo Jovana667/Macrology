@@ -6,6 +6,19 @@ function Home() {
   const [foods, setFoods] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [visibleCounts, setVisibleCounts] = useState({
+    protein: 15,
+    carbs: 15,
+    fats: 15,
+  });
+
+  const loadMore = (category: string) => {
+    setVisibleCounts((prev) => ({
+      ...prev,
+      [category]: prev[category as keyof typeof prev] + 15,
+    }));
+  };
 
   const toggleCategory = (category: string) => {
     if (expandedCategories.includes(category)) {
@@ -15,10 +28,14 @@ function Home() {
     }
   };
 
+  const filteredFoods = foods.filter((f) =>
+    f.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   const groupedFoods = {
-    protein: foods.filter((f) => f.category === "protein"),
-    carbs: foods.filter((f) => f.category === "carbs"),
-    fats: foods.filter((f) => f.category === "fats"),
+    protein: filteredFoods.filter((f) => f.category === "protein"),
+    carbs: filteredFoods.filter((f) => f.category === "carbs"),
+    fats: filteredFoods.filter((f) => f.category === "fats"),
   };
 
   useEffect(() => {
@@ -99,6 +116,15 @@ function Home() {
           <div className="bg-white rounded-lg shadow p-6">
             <h2 className="text-xl font-semibold mb-4">Foods</h2>
 
+            {/* Search Input */}
+            <input
+              type="text"
+              placeholder="Search foods..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+
             {/* Protein Category */}
             <div className="mb-4">
               <button
@@ -112,14 +138,32 @@ function Home() {
 
               {expandedCategories.includes("protein") && (
                 <div className="mt-2 space-y-1">
-                  {groupedFoods.protein.map((food) => (
-                    <div
-                      key={food.id}
-                      className="p-2 hover:bg-blue-50 cursor-pointer rounded text-sm"
+                  {groupedFoods.protein
+                    .slice(0, visibleCounts.protein)
+                    .map((food) => (
+                      <div
+                        key={food.id}
+                        className="p-2 hover:bg-blue-50 cursor-pointer rounded text-sm"
+                      >
+                        <div className="font-medium">{food.name}</div>
+                        <div className="text-xs text-gray-600">
+                          {food.protein_per_100g}g P | {food.carbs_per_100g}g C
+                          | {food.fat_per_100g}g F | {food.calories_per_100g}{" "}
+                          cal
+                        </div>
+                      </div>
+                    ))}
+
+                  {groupedFoods.protein.length > visibleCounts.protein && (
+                    <button
+                      onClick={() => loadMore("protein")}
+                      className="w-full text-blue-600 hover:text-blue-800 text-sm py-2"
                     >
-                      {food.name}
-                    </div>
-                  ))}
+                      Load More (
+                      {groupedFoods.protein.length - visibleCounts.protein}{" "}
+                      more)
+                    </button>
+                  )}
                 </div>
               )}
             </div>
@@ -137,14 +181,31 @@ function Home() {
 
               {expandedCategories.includes("carbs") && (
                 <div className="mt-2 space-y-1">
-                  {groupedFoods.carbs.map((food) => (
-                    <div
-                      key={food.id}
-                      className="p-2 hover:bg-blue-50 cursor-pointer rounded text-sm"
+                  {groupedFoods.carbs
+                    .slice(0, visibleCounts.carbs)
+                    .map((food) => (
+                      <div
+                        key={food.id}
+                        className="p-2 hover:bg-blue-50 cursor-pointer rounded text-sm"
+                      >
+                        <div className="font-medium">{food.name}</div>
+                        <div className="text-xs text-gray-600">
+                          {food.protein_per_100g}g P | {food.carbs_per_100g}g C
+                          | {food.fat_per_100g}g F | {food.calories_per_100g}{" "}
+                          cal
+                        </div>
+                      </div>
+                    ))}
+
+                  {groupedFoods.carbs.length > visibleCounts.carbs && (
+                    <button
+                      onClick={() => loadMore("carbs")}
+                      className="w-full text-blue-600 hover:text-blue-800 text-sm py-2"
                     >
-                      {food.name}
-                    </div>
-                  ))}
+                      Load More (
+                      {groupedFoods.carbs.length - visibleCounts.carbs} more)
+                    </button>
+                  )}
                 </div>
               )}
             </div>
@@ -162,14 +223,31 @@ function Home() {
 
               {expandedCategories.includes("fats") && (
                 <div className="mt-2 space-y-1">
-                  {groupedFoods.fats.map((food) => (
-                    <div
-                      key={food.id}
-                      className="p-2 hover:bg-blue-50 cursor-pointer rounded text-sm"
+                  {groupedFoods.fats
+                    .slice(0, visibleCounts.fats)
+                    .map((food) => (
+                      <div
+                        key={food.id}
+                        className="p-2 hover:bg-blue-50 cursor-pointer rounded text-sm"
+                      >
+                        <div className="font-medium">{food.name}</div>
+                        <div className="text-xs text-gray-600">
+                          {food.protein_per_100g}g P | {food.carbs_per_100g}g C
+                          | {food.fat_per_100g}g F | {food.calories_per_100g}{" "}
+                          cal
+                        </div>
+                      </div>
+                    ))}
+
+                  {groupedFoods.fats.length > visibleCounts.fats && (
+                    <button
+                      onClick={() => loadMore("fats")}
+                      className="w-full text-blue-600 hover:text-blue-800 text-sm py-2"
                     >
-                      {food.name}
-                    </div>
-                  ))}
+                      Load More ({groupedFoods.fats.length - visibleCounts.fats}{" "}
+                      more)
+                    </button>
+                  )}
                 </div>
               )}
             </div>

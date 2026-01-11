@@ -8,7 +8,7 @@ export const getFoods = async (req: Request, res: Response) => {
     const category = req.query.category as string | undefined;
     const search = req.query.search as string | undefined;
     const page = parseInt(req.query.page as string) || 1; // Default: page 1
-    const pageSize = parseInt(req.query.pageSize as string) || 20; // Default: 20 items
+    const pageSize = parseInt(req.query.pageSize as string) || 100; // Default: 100 items (fetch all)
 
     // STEP 2: Calculate pagination values
     // If page=1, pageSize=20 → skip 0 items (first 20)

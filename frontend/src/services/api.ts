@@ -88,8 +88,6 @@ export const getMealById = async (mealId: number) => {
 export const getFoods = async (params?: {
   category?: string;
   search?: string;
-  page?: number;
-  pageSize?: number;
 }) => {
   const response = await foodApi.get("/api/foods", { params });
   return response.data;
