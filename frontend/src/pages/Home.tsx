@@ -80,7 +80,7 @@ function Home() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left side - Meal Planner (2/3 width) */}
-          <div className="lg:col-span-2 bg-white rounded-lg shadow p-6">
+          <div className="lg:col-span-2 order-2 lg:order-1 bg-white rounded-lg shadow p-6">
             <h2 className="text-2xl font-semibold mb-4">Meal Planner</h2>
 
             {/* Placeholder for meal structure */}
@@ -120,7 +120,7 @@ function Home() {
           </div>
 
           {/* Right side - Food Sidebar (1/3 width) */}
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="order-1 lg:order-2 bg-white rounded-lg shadow p-6">
             <h2 className="text-xl font-semibold mb-4">Foods</h2>
 
             {/* Search Input */}
