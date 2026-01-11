@@ -20,6 +20,13 @@ function Home() {
     }));
   };
 
+  const showLess = (category: string) => {
+    setVisibleCounts((prev) => ({
+      ...prev,
+      [category]: 15, // Reset to 15
+    }));
+  };
+
   const toggleCategory = (category: string) => {
     if (expandedCategories.includes(category)) {
       setExpandedCategories(expandedCategories.filter((c) => c !== category));
@@ -125,6 +132,13 @@ function Home() {
               className="w-full px-3 py-2 border border-gray-300 rounded-md mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
 
+            {/* Show loading message */}
+            {loading && (
+              <div className="text-center text-gray-500 py-4">
+                Loading foods...
+              </div>
+            )}
+
             {/* Protein Category */}
             <div className="mb-4">
               <button
@@ -164,6 +178,24 @@ function Home() {
                       more)
                     </button>
                   )}
+
+                  {groupedFoods.protein.length <= visibleCounts.protein &&
+                    groupedFoods.protein.length > 15 && (
+                      <button
+                        onClick={() => showLess("protein")}
+                        className="w-full text-blue-600 hover:text-blue-800 text-sm py-2"
+                      >
+                        Show Less
+                      </button>
+                    )}
+
+                  {/* If all items shown AND more than 15 → Show Less */}
+                  {groupedFoods.protein.length <= visibleCounts.protein &&
+                    groupedFoods.protein.length > 15 && (
+                      <button onClick={() => showLess("protein")}>
+                        Show Less
+                      </button>
+                    )}
                 </div>
               )}
             </div>
@@ -206,6 +238,16 @@ function Home() {
                       {groupedFoods.carbs.length - visibleCounts.carbs} more)
                     </button>
                   )}
+
+                  {groupedFoods.carbs.length <= visibleCounts.carbs &&
+                    groupedFoods.carbs.length > 15 && (
+                      <button
+                        onClick={() => showLess("carbs")}
+                        className="w-full text-blue-600 hover:text-blue-800 text-sm py-2"
+                      >
+                        Show Less
+                      </button>
+                    )}
                 </div>
               )}
             </div>
@@ -248,6 +290,16 @@ function Home() {
                       more)
                     </button>
                   )}
+
+                  {groupedFoods.fats.length <= visibleCounts.fats &&
+                    groupedFoods.fats.length > 15 && (
+                      <button
+                        onClick={() => showLess("fats")}
+                        className="w-full text-blue-600 hover:text-blue-800 text-sm py-2"
+                      >
+                        Show Less
+                      </button>
+                    )}
                 </div>
               )}
             </div>
