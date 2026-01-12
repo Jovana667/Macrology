@@ -89,7 +89,7 @@
       "calories_per_100g": 141.3
     },
     {
-      "name": "turkey mince (coles)",
+      "name": "Turkey mince",
       "category": "protein",
       "protein_per_100g": 19.5,
       "carbs_per_100g": 0.4,
@@ -97,7 +97,7 @@
       "calories_per_100g": 134.5
     },
     {
-      "name": "Whole meal bread (tip top) (2 slices)",
+      "name": "Whole meal bread (2 slices)",
       "category": "protein",
       "protein_per_100g": 27.4,
       "carbs_per_100g": 2.3,
@@ -105,7 +105,7 @@
       "calories_per_100g": 183.6
     },
     {
-      "name": "Simmons low carb/high protien wrap",
+      "name": "Low carb/high protein wrap",
       "category": "protein",
       "protein_per_100g": 13.6,
       "carbs_per_100g": 8.9,
@@ -123,7 +123,7 @@
       "calories_per_100g": 70
     },
     {
-      "name": "Egg Whites 1=100",
+      "name": "Egg whites",
       "category": "carbs",
       "protein_per_100g": 3.6,
       "carbs_per_100g": 0.2,
@@ -179,7 +179,7 @@
       "calories_per_100g": 353.3
     },
     {
-      "name": "Bannana",
+      "name": "Banana",
       "category": "carbs",
       "protein_per_100g": 1.1,
       "carbs_per_100g": 22.8,
@@ -219,7 +219,7 @@
       "calories_per_100g": 55.3
     },
     {
-      "name": "Rice cakes (thick)   1",
+      "name": "Rice cakes",
       "category": "carbs",
       "protein_per_100g": 1.1,
       "carbs_per_100g": 9.9,
@@ -227,7 +227,7 @@
       "calories_per_100g": 46.7
     },
     {
-      "name": "English muffin (wholemeal) tiptop",
+      "name": "English muffin (wholemeal)",
       "category": "carbs",
       "protein_per_100g": 5.4,
       "carbs_per_100g": 19.5,
@@ -235,7 +235,7 @@
       "calories_per_100g": 111.3
     },
     {
-      "name": "English muffin tiptop",
+      "name": "English muffin (white)",
       "category": "carbs",
       "protein_per_100g": 4.8,
       "carbs_per_100g": 23.5,
@@ -243,7 +243,7 @@
       "calories_per_100g": 125.8
     },
     {
-      "name": "low carb wrap (mission)",
+      "name": "Mission low carb wrap",
       "category": "carbs",
       "protein_per_100g": 7.5,
       "carbs_per_100g": 11.3,
@@ -251,7 +251,7 @@
       "calories_per_100g": 116.6
     },
     {
-      "name": "spud lite",
+      "name": "Spud lite",
       "category": "carbs",
       "protein_per_100g": 1.4,
       "carbs_per_100g": 8.9,
@@ -347,7 +347,7 @@
       "calories_per_100g": 17.7
     },
     {
-      "name": "Red Kidney beans (edgell)",
+      "name": "Red Kidney beans",
       "category": "carbs",
       "protein_per_100g": 7.7,
       "carbs_per_100g": 14.4,
@@ -355,7 +355,7 @@
       "calories_per_100g": 95.6
     },
     {
-      "name": "kent pumpkin",
+      "name": "Pumpkin",
       "category": "carbs",
       "protein_per_100g": 1,
       "carbs_per_100g": 8,
@@ -363,7 +363,7 @@
       "calories_per_100g": 36
     },
     {
-      "name": "Cherry tomatoes 10",
+      "name": "Cherry tomatoes",
       "category": "carbs",
       "protein_per_100g": 1.5,
       "carbs_per_100g": 6.6,
@@ -379,7 +379,7 @@
       "calories_per_100g": 84.7
     },
     {
-      "name": "chickpea (coles)",
+      "name": "Chickpeas",
       "category": "carbs",
       "protein_per_100g": 6.5,
       "carbs_per_100g": 15.8,
@@ -387,7 +387,7 @@
       "calories_per_100g": 112.6
     },
     {
-      "name": "lenties (coles)",
+      "name": "Lentils",
       "category": "carbs",
       "protein_per_100g": 7.7,
       "carbs_per_100g": 8.2,
@@ -397,7 +397,7 @@
   ],
   "fats": [
     {
-      "name": "cobs popcorn (sea salt)",
+      "name": "Cobs popcorn (sea salt)",
       "category": "fats",
       "protein_per_100g": 10.9,
       "carbs_per_100g": 51.6,
@@ -421,7 +421,7 @@
       "calories_per_100g": 619.5
     },
     {
-      "name": "Coles No Added Sugar Dark Chocolate",
+      "name": "No added sugar dark chocolate",
       "category": "fats",
       "protein_per_100g": 3.8,
       "carbs_per_100g": 2.4,
