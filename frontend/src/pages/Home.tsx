@@ -139,6 +139,13 @@ function Home() {
               </div>
             )}
 
+            {/* Show no foods found message */}
+            {!loading && searchTerm && filteredFoods.length === 0  && (
+              <div className="text-center text-gray-500 py-4">
+                No foods found.
+              </div>
+            )}
+
             {/* Protein Category */}
             <div className="mb-4">
               <button
