@@ -27,6 +27,10 @@ function Home() {
     }));
   };
 
+  const clearSearch = () => {
+    setSearchTerm("");
+  };
+
   const toggleCategory = (category: string) => {
     if (expandedCategories.includes(category)) {
       setExpandedCategories(expandedCategories.filter((c) => c !== category));
@@ -123,14 +127,24 @@ function Home() {
           <div className="order-1 lg:order-2 bg-white rounded-lg shadow p-6">
             <h2 className="text-xl font-semibold mb-4">Foods</h2>
 
-            {/* Search Input */}
-            <input
-              type="text"
-              placeholder="Search foods..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+            {/* Search Input with Clear Button */}
+            <div className="relative mb-4">
+              <input
+                type="text"
+                placeholder="Search foods..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              {searchTerm && (
+                <button
+                  onClick={clearSearch}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
 
             {/* Show loading message */}
             {loading && (
@@ -140,7 +154,7 @@ function Home() {
             )}
 
             {/* Show no foods found message */}
-            {!loading && searchTerm && filteredFoods.length === 0  && (
+            {!loading && searchTerm && filteredFoods.length === 0 && (
               <div className="text-center text-gray-500 py-4">
                 No foods found.
               </div>
