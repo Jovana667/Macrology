@@ -12,6 +12,13 @@ function Home() {
     carbs: 15,
     fats: 15,
   });
+  const [selectedMeal, setSelectedMeal] = useState<string>("breakfast"); // which meal is active
+  const [mealFoods, setMealFoods] = useState({
+    breakfast: [],
+    lunch: [],
+    dinner: [],
+    snack: [],
+  });
 
   const loadMore = (category: string) => {
     setVisibleCounts((prev) => ({
@@ -29,6 +36,18 @@ function Home() {
 
   const clearSearch = () => {
     setSearchTerm("");
+  };
+
+  const addFoodToMeal = (food: any) => {
+    console.log(`Adding ${food.name} to ${selectedMeal}`);
+    setMealFoods({
+      ...mealFoods,
+      [selectedMeal]: [
+        ...mealFoods[selectedMeal as keyof typeof mealFoods],
+        food,
+      ],
+    });
+    console.log("Updated mealFoods:", mealFoods);
   };
 
   const toggleCategory = (category: string) => {
@@ -91,29 +110,101 @@ function Home() {
             <div className="space-y-6">
               <div>
                 <h3 className="font-semibold text-lg mb-2">Breakfast: 0 cal</h3>
-                <div className="border-2 border-dashed border-gray-300 rounded p-4 text-gray-400">
-                  Drop foods here
+                <div
+                  className={`border-2 border-dashed rounded p-4 cursor-pointer ${
+                    selectedMeal === "breakfast"
+                      ? "border-blue-500 bg-blue-50"
+                      : "border-gray-300 text-gray-400"
+                  }`}
+                  onClick={() => setSelectedMeal("breakfast")}
+                >
+                  {mealFoods.breakfast.length === 0 ? (
+                    <p className="text-gray-400">Drop foods here</p>
+                  ) : (
+                    mealFoods.breakfast.map((food: any, index: number) => (
+                      <div
+                        key={`${food.id}-${index}`}
+                        className="text-sm mb-1 text-gray-800"
+                      >
+                        {food.name}
+                      </div>
+                    ))
+                  )}
                 </div>
               </div>
 
               <div>
                 <h3 className="font-semibold text-lg mb-2">Lunch: 0 cal</h3>
-                <div className="border-2 border-dashed border-gray-300 rounded p-4 text-gray-400">
-                  Drop foods here
+                <div
+                  className={`border-2 border-dashed rounded p-4 cursor-pointer ${
+                    selectedMeal === "lunch"
+                      ? "border-blue-500 bg-blue-50"
+                      : "border-gray-300 text-gray-400"
+                  }`}
+                  onClick={() => setSelectedMeal("lunch")}
+                >
+                  {mealFoods.lunch.length === 0 ? (
+                    <p className="text-gray-400">Drop foods here</p>
+                  ) : (
+                    mealFoods.lunch.map((food: any, index: number) => (
+                      <div
+                        key={`${food.id}-${index}`}
+                        className="text-sm mb-1 text-gray-800"
+                      >
+                        {food.name}
+                      </div>
+                    ))
+                  )}
                 </div>
               </div>
 
               <div>
                 <h3 className="font-semibold text-lg mb-2">Dinner: 0 cal</h3>
-                <div className="border-2 border-dashed border-gray-300 rounded p-4 text-gray-400">
-                  Drop foods here
+                <div
+                  className={`border-2 border-dashed rounded p-4 cursor-pointer ${
+                    selectedMeal === "dinner"
+                      ? "border-blue-500 bg-blue-50"
+                      : "border-gray-300 text-gray-400"
+                  }`}
+                  onClick={() => setSelectedMeal("dinner")}
+                >
+                  {mealFoods.dinner.length === 0 ? (
+                    <p className="text-gray-400">Drop foods here</p>
+                  ) : (
+                    mealFoods.dinner.map((food: any, index: number) => (
+                      <div
+                        key={`${food.id}-${index}`}
+                        className="text-sm mb-1 text-gray-800"
+                      >
+                        {food.name}
+                      </div>
+                    ))
+                  )}
                 </div>
               </div>
 
               <div>
                 <h3 className="font-semibold text-lg mb-2">Snack: 0 cal</h3>
-                <div className="border-2 border-dashed border-gray-300 rounded p-4 text-gray-400">
-                  Drop foods here
+                <div
+                  className={`border-2 border-dashed rounded p-4 cursor-pointer ${
+                    selectedMeal === "snack"
+                      ? "border-blue-500 bg-blue-50"
+                      : "border-gray-300 text-gray-400"
+                  }`}
+                  onClick={() => setSelectedMeal("snack")}
+                >
+                  {mealFoods.snack.length === 0 ? (
+                    <p className="text-gray-400">Drop foods here</p>
+                  ) : (
+                    mealFoods.snack.map((food: any, index: number) => (
+                      <div
+                        key={`${food.id}-${index}`}
+                        className="text-sm mb-1 text-gray-800"
+                      >
+                        {food.name}
+                      </div>
+                    ))
+                  )}
                 </div>
               </div>
             </div>
@@ -178,6 +269,7 @@ function Home() {
                     .map((food) => (
                       <div
                         key={food.id}
+                        onClick={() => addFoodToMeal(food)}
                         className="p-2 hover:bg-blue-50 cursor-pointer rounded text-sm"
                       >
                         <div className="font-medium">{food.name}</div>
@@ -239,6 +331,7 @@ function Home() {
                     .map((food) => (
                       <div
                         key={food.id}
+                        onClick={() => addFoodToMeal(food)}
                         className="p-2 hover:bg-blue-50 cursor-pointer rounded text-sm"
                       >
                         <div className="font-medium">{food.name}</div>
@@ -291,6 +384,7 @@ function Home() {
                     .map((food) => (
                       <div
                         key={food.id}
+                        onClick={() => addFoodToMeal(food)}
                         className="p-2 hover:bg-blue-50 cursor-pointer rounded text-sm"
                       >
                         <div className="font-medium">{food.name}</div>

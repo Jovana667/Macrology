@@ -99,3 +99,4 @@ export const searchFoods = async (query: string) => {
   });
   return response.data;
 };
+
