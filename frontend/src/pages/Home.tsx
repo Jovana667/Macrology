@@ -40,14 +40,39 @@ function Home() {
 
   const addFoodToMeal = (food: any) => {
     console.log(`Adding ${food.name} to ${selectedMeal}`);
+    const foodWithServing = { ...food, serving: 1 }; // Default serving size to 1
     setMealFoods({
       ...mealFoods,
       [selectedMeal]: [
         ...mealFoods[selectedMeal as keyof typeof mealFoods],
-        food,
+        foodWithServing,
       ],
     });
     console.log("Updated mealFoods:", mealFoods);
+  };
+
+  const updateFoodServing = (
+    mealType: string,
+    foodIndex: number,
+    newServing: string
+  ) => {
+    // Copy the entire mealFoods object
+    const updatedMealFoods = { ...mealFoods };
+
+    // Copy the specific meal's array
+    const updatedMeal = [...mealFoods[mealType as keyof typeof mealFoods]];
+
+    // Update the specific food at foodIndex
+    updatedMeal[foodIndex] = {
+      ...updatedMeal[foodIndex],
+      serving: newServing,
+    };
+
+    // Update the meal in the mealFoods object
+    updatedMealFoods[mealType as keyof typeof mealFoods] = updatedMeal;
+
+    // Set the new state
+    setMealFoods(updatedMealFoods);
   };
 
   const toggleCategory = (category: string) => {
@@ -81,6 +106,8 @@ function Home() {
       }
     };
 
+    console.log(groupedFoods.protein)
+    
     fetchFoods();
   }, []);
   return (
@@ -127,12 +154,25 @@ function Home() {
                         className="text-sm mb-1 text-gray-800"
                       >
                         {food.name}
+                        <input
+                          value={food.serving}
+                          onChange={(e) =>
+                            updateFoodServing(
+                              "breakfast",
+                              index,
+                              e.target.value
+                            )
+                          }
+                        />
+                        <p>Calories: {food.calories_per_100g * food.serving}</p>
+                        <p>Protein: {food.protein_per_100g * food.serving}g</p>
+                        <p>Carbs: {food.carbs_per_100g * food.serving}g</p>
+                        <p>Fats: {food.fat_per_100g * food.serving}g</p>
                       </div>
                     ))
                   )}
                 </div>
               </div>
-
               <div>
                 <h3 className="font-semibold text-lg mb-2">Lunch: 0 cal</h3>
                 <div
@@ -152,6 +192,16 @@ function Home() {
                         className="text-sm mb-1 text-gray-800"
                       >
                         {food.name}
+                        <input
+                          value={food.serving}
+                          onChange={(e) =>
+                            updateFoodServing("lunch", index, e.target.value)
+                          }
+                        />
+                        <p>Calories: {food.calories_per_100g * food.serving}</p>
+                        <p>Protein: {food.protein_per_100g * food.serving}g</p>
+                        <p>Carbs: {food.carbs_per_100g * food.serving}g</p>
+                        <p>Fats: {food.fat_per_100g * food.serving}g</p>
                       </div>
                     ))
                   )}
@@ -177,6 +227,16 @@ function Home() {
                         className="text-sm mb-1 text-gray-800"
                       >
                         {food.name}
+                        <input
+                          value={food.serving}
+                          onChange={(e) =>
+                            updateFoodServing("dinner", index, e.target.value)
+                          }
+                        />
+                        <p>Calories: {food.calories_per_100g * food.serving}</p>
+                        <p>Protein: {food.protein_per_100g * food.serving}g</p>
+                        <p>Carbs: {food.carbs_per_100g * food.serving}g</p>
+                        <p>Fats: {food.fat_per_100g * food.serving}g</p>
                       </div>
                     ))
                   )}
@@ -202,6 +262,16 @@ function Home() {
                         className="text-sm mb-1 text-gray-800"
                       >
                         {food.name}
+                        <input
+                          value={food.serving}
+                          onChange={(e) =>
+                            updateFoodServing("snack", index, e.target.value)
+                          }
+                        />
+                        <p>Calories: {food.calories_per_100g * food.serving}</p>
+                        <p>Protein: {food.protein_per_100g * food.serving}g</p>
+                        <p>Carbs: {food.carbs_per_100g * food.serving}g</p>
+                        <p>Fats: {food.fat_per_100g * food.serving}g</p>
                       </div>
                     ))
                   )}
