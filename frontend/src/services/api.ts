@@ -88,8 +88,11 @@ export const getMealById = async (mealId: number) => {
 export const getFoods = async (params?: {
   category?: string;
   search?: string;
+  pageSize?: number;
 }) => {
-  const response = await foodApi.get("/api/foods", { params });
+  const response = await foodApi.get("/api/foods", {
+    params: { pageSize: 100, ...params },
+  });
   return response.data;
 };
 
@@ -99,4 +102,3 @@ export const searchFoods = async (query: string) => {
   });
   return response.data;
 };
-
