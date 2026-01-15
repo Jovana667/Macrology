@@ -75,6 +75,17 @@ function Home() {
     setMealFoods(updatedMealFoods);
   };
 
+  const removeFoodFromMeal = (mealType: string, foodIndex: number) => {
+    const updatedMealFoods = { ...mealFoods };
+    const updatedMeal = [...mealFoods[mealType as keyof typeof mealFoods]];
+
+    // Remove the food at the specified index
+    updatedMeal.splice(foodIndex, 1);
+
+    updatedMealFoods[mealType as keyof typeof mealFoods] = updatedMeal;
+    setMealFoods(updatedMealFoods);
+  };
+
   const toggleCategory = (category: string) => {
     if (expandedCategories.includes(category)) {
       setExpandedCategories(expandedCategories.filter((c) => c !== category));
@@ -106,8 +117,8 @@ function Home() {
       }
     };
 
-    console.log(groupedFoods.protein)
-    
+    console.log(groupedFoods.protein);
+
     fetchFoods();
   }, []);
   return (
@@ -151,23 +162,40 @@ function Home() {
                     mealFoods.breakfast.map((food: any, index: number) => (
                       <div
                         key={`${food.id}-${index}`}
-                        className="text-sm mb-1 text-gray-800"
+                        className="text-sm mb-1 text-gray-800 flex justify-between items-start"
                       >
-                        {food.name}
-                        <input
-                          value={food.serving}
-                          onChange={(e) =>
-                            updateFoodServing(
-                              "breakfast",
-                              index,
-                              e.target.value
-                            )
-                          }
-                        />
-                        <p>Calories: {food.calories_per_100g * food.serving}</p>
-                        <p>Protein: {food.protein_per_100g * food.serving}g</p>
-                        <p>Carbs: {food.carbs_per_100g * food.serving}g</p>
-                        <p>Fats: {food.fat_per_100g * food.serving}g</p>
+                        <div className="flex-1">
+                          <div className="font-medium">{food.name}</div>
+                          <input
+                            type="number"
+                            value={food.serving}
+                            onChange={(e) =>
+                              updateFoodServing(
+                                "breakfast",
+                                index,
+                                e.target.value
+                              )
+                            }
+                            className="w-20 px-2 py-1 border rounded"
+                          />
+                          <p>
+                            Calories: {food.calories_per_100g * food.serving}
+                          </p>
+                          <p>
+                            Protein: {food.protein_per_100g * food.serving}g
+                          </p>
+                          <p>Carbs: {food.carbs_per_100g * food.serving}g</p>
+                          <p>Fats: {food.fat_per_100g * food.serving}g</p>
+                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeFoodFromMeal("breakfast", index);
+                          }}
+                          className="text-red-500 hover:text-red-700 ml-2"
+                        >
+                          ✕
+                        </button>
                       </div>
                     ))
                   )}
@@ -189,19 +217,36 @@ function Home() {
                     mealFoods.lunch.map((food: any, index: number) => (
                       <div
                         key={`${food.id}-${index}`}
-                        className="text-sm mb-1 text-gray-800"
+                        className="text-sm mb-1 text-gray-800 flex justify-between items-start"
                       >
-                        {food.name}
-                        <input
-                          value={food.serving}
-                          onChange={(e) =>
-                            updateFoodServing("lunch", index, e.target.value)
-                          }
-                        />
-                        <p>Calories: {food.calories_per_100g * food.serving}</p>
-                        <p>Protein: {food.protein_per_100g * food.serving}g</p>
-                        <p>Carbs: {food.carbs_per_100g * food.serving}g</p>
-                        <p>Fats: {food.fat_per_100g * food.serving}g</p>
+                        <div className="flex-1">
+                          <div className="font-medium">{food.name}</div>
+                          <input
+                            type="number"
+                            value={food.serving}
+                            onChange={(e) =>
+                              updateFoodServing("lunch", index, e.target.value)
+                            }
+                            className="w-20 px-2 py-1 border rounded"
+                          />
+                          <p>
+                            Calories: {food.calories_per_100g * food.serving}
+                          </p>
+                          <p>
+                            Protein: {food.protein_per_100g * food.serving}g
+                          </p>
+                          <p>Carbs: {food.carbs_per_100g * food.serving}g</p>
+                          <p>Fats: {food.fat_per_100g * food.serving}g</p>
+                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeFoodFromMeal("lunch", index);
+                          }}
+                          className="text-red-500 hover:text-red-700 ml-2"
+                        >
+                          ✕
+                        </button>
                       </div>
                     ))
                   )}
@@ -224,19 +269,36 @@ function Home() {
                     mealFoods.dinner.map((food: any, index: number) => (
                       <div
                         key={`${food.id}-${index}`}
-                        className="text-sm mb-1 text-gray-800"
+                        className="text-sm mb-1 text-gray-800 flex justify-between items-start"
                       >
-                        {food.name}
-                        <input
-                          value={food.serving}
-                          onChange={(e) =>
-                            updateFoodServing("dinner", index, e.target.value)
-                          }
-                        />
-                        <p>Calories: {food.calories_per_100g * food.serving}</p>
-                        <p>Protein: {food.protein_per_100g * food.serving}g</p>
-                        <p>Carbs: {food.carbs_per_100g * food.serving}g</p>
-                        <p>Fats: {food.fat_per_100g * food.serving}g</p>
+                        <div className="flex-1">
+                          <div className="font-medium">{food.name}</div>
+                          <input
+                            type="number"
+                            value={food.serving}
+                            onChange={(e) =>
+                              updateFoodServing("dinner", index, e.target.value)
+                            }
+                            className="w-20 px-2 py-1 border rounded"
+                          />
+                          <p>
+                            Calories: {food.calories_per_100g * food.serving}
+                          </p>
+                          <p>
+                            Protein: {food.protein_per_100g * food.serving}g
+                          </p>
+                          <p>Carbs: {food.carbs_per_100g * food.serving}g</p>
+                          <p>Fats: {food.fat_per_100g * food.serving}g</p>
+                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeFoodFromMeal("dinner", index);
+                          }}
+                          className="text-red-500 hover:text-red-700 ml-2"
+                        >
+                          ✕
+                        </button>
                       </div>
                     ))
                   )}
@@ -259,19 +321,36 @@ function Home() {
                     mealFoods.snack.map((food: any, index: number) => (
                       <div
                         key={`${food.id}-${index}`}
-                        className="text-sm mb-1 text-gray-800"
+                        className="text-sm mb-1 text-gray-800 flex justify-between items-start"
                       >
-                        {food.name}
-                        <input
-                          value={food.serving}
-                          onChange={(e) =>
-                            updateFoodServing("snack", index, e.target.value)
-                          }
-                        />
-                        <p>Calories: {food.calories_per_100g * food.serving}</p>
-                        <p>Protein: {food.protein_per_100g * food.serving}g</p>
-                        <p>Carbs: {food.carbs_per_100g * food.serving}g</p>
-                        <p>Fats: {food.fat_per_100g * food.serving}g</p>
+                        <div className="flex-1">
+                          <div className="font-medium">{food.name}</div>
+                          <input
+                            type="number"
+                            value={food.serving}
+                            onChange={(e) =>
+                              updateFoodServing("snack", index, e.target.value)
+                            }
+                            className="w-20 px-2 py-1 border rounded"
+                          />
+                          <p>
+                            Calories: {food.calories_per_100g * food.serving}
+                          </p>
+                          <p>
+                            Protein: {food.protein_per_100g * food.serving}g
+                          </p>
+                          <p>Carbs: {food.carbs_per_100g * food.serving}g</p>
+                          <p>Fats: {food.fat_per_100g * food.serving}g</p>
+                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeFoodFromMeal("snack", index);
+                          }}
+                          className="text-red-500 hover:text-red-700 ml-2"
+                        >
+                          ✕
+                        </button>
                       </div>
                     ))
                   )}
