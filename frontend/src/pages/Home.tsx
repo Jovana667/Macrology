@@ -133,6 +133,9 @@ function Home() {
         <header className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Macrology</h1>
           <div className="space-x-4">
+               <Link to="/meals" className="text-blue-600 hover:text-blue-800">
+              Saved Meals
+            </Link>
             <Link to="/login" className="text-blue-600 hover:text-blue-800">
               Login
             </Link>
