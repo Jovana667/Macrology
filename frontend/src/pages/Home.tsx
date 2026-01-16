@@ -65,7 +65,7 @@ function Home() {
     // Update the specific food at foodIndex
     updatedMeal[foodIndex] = {
       ...updatedMeal[foodIndex],
-      serving: newServing,
+      serving: parseFloat(newServing) || 0,
     };
 
     // Update the meal in the mealFoods object
@@ -84,6 +84,12 @@ function Home() {
 
     updatedMealFoods[mealType as keyof typeof mealFoods] = updatedMeal;
     setMealFoods(updatedMealFoods);
+  };
+
+  const calculateMealTotal = (mealType, metric) => {
+    return mealFoods[mealType].reduce((total, food) => {
+      return total + food[`${metric}_per_100g`] * food.serving;
+    }, 0);
   };
 
   const toggleCategory = (category: string) => {
@@ -147,7 +153,17 @@ function Home() {
             {/* Placeholder for meal structure */}
             <div className="space-y-6">
               <div>
-                <h3 className="font-semibold text-lg mb-2">Breakfast: 0 cal</h3>
+                <h3 className="font-semibold text-lg mb-2">
+                  <h3>
+                    Breakfast:{" "}
+                    {calculateMealTotal("breakfast", "calories").toFixed(1)}{" "}
+                    cal, {calculateMealTotal("breakfast", "protein").toFixed(1)}
+                    g protein,{" "}
+                    {calculateMealTotal("breakfast", "carbs").toFixed(1)}g
+                    carbs, {calculateMealTotal("breakfast", "fat").toFixed(1)}g
+                    fats
+                  </h3>{" "}
+                </h3>
                 <div
                   className={`border-2 border-dashed rounded p-4 cursor-pointer ${
                     selectedMeal === "breakfast"
@@ -179,13 +195,21 @@ function Home() {
                             className="w-20 px-2 py-1 border rounded"
                           />
                           <p>
-                            Calories: {food.calories_per_100g * food.serving}
+                            Calories:{" "}
+                            {(food.calories_per_100g * food.serving).toFixed(1)}
                           </p>
                           <p>
-                            Protein: {food.protein_per_100g * food.serving}g
+                            Protein:{" "}
+                            {(food.protein_per_100g * food.serving).toFixed(1)}g
                           </p>
-                          <p>Carbs: {food.carbs_per_100g * food.serving}g</p>
-                          <p>Fats: {food.fat_per_100g * food.serving}g</p>
+                          <p>
+                            Carbs:{" "}
+                            {(food.carbs_per_100g * food.serving).toFixed(1)}g
+                          </p>
+                          <p>
+                            Fats:{" "}
+                            {(food.fat_per_100g * food.serving).toFixed(1)}g
+                          </p>
                         </div>
                         <button
                           onClick={(e) => {
@@ -202,7 +226,14 @@ function Home() {
                 </div>
               </div>
               <div>
-                <h3 className="font-semibold text-lg mb-2">Lunch: 0 cal</h3>
+                <h3 className="font-semibold text-lg mb-2">
+                  <h3>
+                    Lunch: {calculateMealTotal("lunch", "calories").toFixed(1)}{" "}
+                    cal, {calculateMealTotal("lunch", "protein").toFixed(1)}g
+                    protein, {calculateMealTotal("lunch", "carbs").toFixed(1)}g
+                    carbs, {calculateMealTotal("lunch", "fat").toFixed(1)}g fats
+                  </h3>{" "}
+                </h3>
                 <div
                   className={`border-2 border-dashed rounded p-4 cursor-pointer ${
                     selectedMeal === "lunch"
@@ -230,13 +261,21 @@ function Home() {
                             className="w-20 px-2 py-1 border rounded"
                           />
                           <p>
-                            Calories: {food.calories_per_100g * food.serving}
+                            Calories:{" "}
+                            {(food.calories_per_100g * food.serving).toFixed(1)}
                           </p>
                           <p>
-                            Protein: {food.protein_per_100g * food.serving}g
+                            Protein:{" "}
+                            {(food.protein_per_100g * food.serving).toFixed(1)}g
                           </p>
-                          <p>Carbs: {food.carbs_per_100g * food.serving}g</p>
-                          <p>Fats: {food.fat_per_100g * food.serving}g</p>
+                          <p>
+                            Carbs:{" "}
+                            {(food.carbs_per_100g * food.serving).toFixed(1)}g
+                          </p>
+                          <p>
+                            Fats:{" "}
+                            {(food.fat_per_100g * food.serving).toFixed(1)}g
+                          </p>
                         </div>
                         <button
                           onClick={(e) => {
@@ -254,7 +293,16 @@ function Home() {
               </div>
 
               <div>
-                <h3 className="font-semibold text-lg mb-2">Dinner: 0 cal</h3>
+                <h3 className="font-semibold text-lg mb-2">
+                  <h3>
+                    Dinner:{" "}
+                    {calculateMealTotal("dinner", "calories").toFixed(1)} cal,{" "}
+                    {calculateMealTotal("dinner", "protein").toFixed(1)}g
+                    protein, {calculateMealTotal("dinner", "carbs").toFixed(1)}g
+                    carbs, {calculateMealTotal("dinner", "fat").toFixed(1)}g
+                    fats
+                  </h3>{" "}
+                </h3>
                 <div
                   className={`border-2 border-dashed rounded p-4 cursor-pointer ${
                     selectedMeal === "dinner"
@@ -282,13 +330,21 @@ function Home() {
                             className="w-20 px-2 py-1 border rounded"
                           />
                           <p>
-                            Calories: {food.calories_per_100g * food.serving}
+                            Calories:{" "}
+                            {(food.calories_per_100g * food.serving).toFixed(1)}
                           </p>
                           <p>
-                            Protein: {food.protein_per_100g * food.serving}g
+                            Protein:{" "}
+                            {(food.protein_per_100g * food.serving).toFixed(1)}g
                           </p>
-                          <p>Carbs: {food.carbs_per_100g * food.serving}g</p>
-                          <p>Fats: {food.fat_per_100g * food.serving}g</p>
+                          <p>
+                            Carbs:{" "}
+                            {(food.carbs_per_100g * food.serving).toFixed(1)}g
+                          </p>
+                          <p>
+                            Fats:{" "}
+                            {(food.fat_per_100g * food.serving).toFixed(1)}g
+                          </p>
                         </div>
                         <button
                           onClick={(e) => {
@@ -306,7 +362,14 @@ function Home() {
               </div>
 
               <div>
-                <h3 className="font-semibold text-lg mb-2">Snack: 0 cal</h3>
+                <h3 className="font-semibold text-lg mb-2">
+                  <h3>
+                    Snack: {calculateMealTotal("snack", "calories").toFixed(1)}{" "}
+                    cal, {calculateMealTotal("snack", "protein").toFixed(1)}g
+                    protein, {calculateMealTotal("snack", "carbs").toFixed(1)}g
+                    carbs, {calculateMealTotal("snack", "fat").toFixed(1)}g fats
+                  </h3>{" "}
+                </h3>
                 <div
                   className={`border-2 border-dashed rounded p-4 cursor-pointer ${
                     selectedMeal === "snack"
@@ -334,13 +397,21 @@ function Home() {
                             className="w-20 px-2 py-1 border rounded"
                           />
                           <p>
-                            Calories: {food.calories_per_100g * food.serving}
+                            Calories:{" "}
+                            {(food.calories_per_100g * food.serving).toFixed(1)}
                           </p>
                           <p>
-                            Protein: {food.protein_per_100g * food.serving}g
+                            Protein:{" "}
+                            {(food.protein_per_100g * food.serving).toFixed(1)}g
                           </p>
-                          <p>Carbs: {food.carbs_per_100g * food.serving}g</p>
-                          <p>Fats: {food.fat_per_100g * food.serving}g</p>
+                          <p>
+                            Carbs:{" "}
+                            {(food.carbs_per_100g * food.serving).toFixed(1)}g
+                          </p>
+                          <p>
+                            Fats:{" "}
+                            {(food.fat_per_100g * food.serving).toFixed(1)}g
+                          </p>
                         </div>
                         <button
                           onClick={(e) => {
