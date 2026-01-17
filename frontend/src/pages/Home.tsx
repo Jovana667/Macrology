@@ -1,10 +1,12 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { getFoods } from "../services/api";
 
 function Home() {
+  const navigate = useNavigate();
   const [foods, setFoods] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [visibleCounts, setVisibleCounts] = useState({
@@ -110,6 +112,18 @@ function Home() {
     fats: filteredFoods.filter((f) => f.category === "fats"),
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setIsLoggedIn(false);
+    navigate("/");
+  };
+
+  useEffect(() => {
+    // Check if user is logged in
+    const token = localStorage.getItem("token");
+    setIsLoggedIn(!!token);
+  }, []);
+
   useEffect(() => {
     const fetchFoods = async () => {
       try {
@@ -133,18 +147,29 @@ function Home() {
         <header className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Macrology</h1>
           <div className="space-x-4">
-               <Link to="/meals" className="text-blue-600 hover:text-blue-800">
+            <Link to="/meals" className="text-blue-600 hover:text-blue-800">
               Saved Meals
             </Link>
-            <Link to="/login" className="text-blue-600 hover:text-blue-800">
-              Login
-            </Link>
-            <Link
-              to="/register"
-              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-            >
-              Sign Up
-            </Link>
+            {isLoggedIn ? (
+              <button
+                onClick={handleLogout}
+                className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+              >
+                Log Out
+              </button>
+            ) : (
+              <>
+                <Link to="/login" className="text-blue-600 hover:text-blue-800">
+                  Login
+                </Link>
+                <Link
+                  to="/register"
+                  className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                >
+                  Sign Up
+                </Link>
+              </>
+            )}
           </div>
         </header>
 

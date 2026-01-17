@@ -34,14 +34,11 @@ function Meals() {
             <Link to="/" className="text-blue-600 hover:text-blue-800">
               Home
             </Link>
-            <Link to="/login" className="text-blue-600 hover:text-blue-800">
-              Login
-            </Link>
             <Link
-              to="/register"
+              to="/"
               className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
             >
-              Sign Up
+              Log out
             </Link>
           </div>
         </header>
