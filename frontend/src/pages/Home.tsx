@@ -56,7 +56,7 @@ function Home() {
   const updateFoodServing = (
     mealType: string,
     foodIndex: number,
-    newServing: string
+    newServing: string,
   ) => {
     // Copy the entire mealFoods object
     const updatedMealFoods = { ...mealFoods };
@@ -103,13 +103,22 @@ function Home() {
   };
 
   const filteredFoods = foods.filter((f) =>
-    f.name.toLowerCase().includes(searchTerm.toLowerCase())
+    f.name.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   const groupedFoods = {
     protein: filteredFoods.filter((f) => f.category === "protein"),
     carbs: filteredFoods.filter((f) => f.category === "carbs"),
     fats: filteredFoods.filter((f) => f.category === "fats"),
+  };
+
+  const calculateGrandTotal = (metric) => {
+    return (
+      calculateMealTotal("breakfast", metric) +
+      calculateMealTotal("lunch", metric) +
+      calculateMealTotal("dinner", metric) +
+      calculateMealTotal("snack", metric)
+    );
   };
 
   const handleLogout = () => {
@@ -217,7 +226,7 @@ function Home() {
                               updateFoodServing(
                                 "breakfast",
                                 index,
-                                e.target.value
+                                e.target.value,
                               )
                             }
                             className="w-20 px-2 py-1 border rounded"
@@ -456,10 +465,20 @@ function Home() {
                 </div>
               </div>
             </div>
-
-            <button className="mt-6 bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700">
-              Save Meal
-            </button>
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <button className="mt-6 bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700">
+                Save Meal
+              </button>
+              {/* Grand Total */}
+              <div className="mt-6 pt-6 ">
+                <h3 className="font-semibold text-lg">
+                  Calories: {calculateGrandTotal("calories").toFixed(1)} cal,
+                  Protein: {calculateGrandTotal("protein").toFixed(1)}g, Carbs:{" "}
+                  {calculateGrandTotal("carbs").toFixed(1)}g, Fats:{" "}
+                  {calculateGrandTotal("fat").toFixed(1)}g
+                </h3>
+              </div>
+            </div>
           </div>
 
           {/* Right side - Food Sidebar (1/3 width) */}
