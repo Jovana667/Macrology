@@ -58,7 +58,7 @@ export const createMeal = async (req: Request, res: Response) => {
 
     const existingFoodIds = foodCheckResult.rows.map((row) => row.id);
     const invalidFoodIds = foodIds.filter(
-      (id) => !existingFoodIds.includes(id)
+      (id) => !existingFoodIds.includes(id),
     );
 
     if (invalidFoodIds.length > 0) {
@@ -73,24 +73,23 @@ export const createMeal = async (req: Request, res: Response) => {
 
     // STEP 5: Insert meal record
     const insertMealQuery = `
-      INSERT INTO meals (user_id, name, meal_type, meal_date, is_template)
-      VALUES ($1, $2, $3, $4, $5)
-      RETURNING id, user_id, name, meal_type, meal_date, is_template, created_at, updated_at
+      INSERT INTO meal_plans (user_id, name, is_template, meal_date)
+      VALUES ($1, $2, $3, $4)
+      RETURNING id, user_id, name, is_template, meal_date, created_at, updated_at
     `;
 
     const mealResult = await client.query(insertMealQuery, [
       userId,
       name,
-      meal_type || null,
-      meal_date || null,
       is_template || false,
+      meal_date || new Date().toISOString().split("T")[0],
     ]);
 
-    const meal = mealResult.rows[0];
-    const mealId = meal.id;
+    const mealPlan = mealResult.rows[0];
+    const mealPlanId = mealPlan.id;
 
     // STEP 6: Insert all meal_foods records
-    const insertedFoods: any[] = [];
+    const mealTypes = ['Breakfast', 'Lunch', 'Dinner', 'Snack'];
 
     for (const food of foods) {
       const insertFoodQuery = `
@@ -100,7 +99,7 @@ export const createMeal = async (req: Request, res: Response) => {
       `;
 
       const foodResult = await client.query(insertFoodQuery, [
-        mealId,
+        mealPlanId,
         food.food_id,
         food.servings || null,
         food.quantity_g || null,
@@ -131,7 +130,7 @@ export const createMeal = async (req: Request, res: Response) => {
       WHERE mf.meal_id = $1
     `;
 
-    const nutritionResult = await client.query(nutritionQuery, [mealId]);
+    const nutritionResult = await client.query(nutritionQuery, [mealPlanId]);
     const foodsWithNutrition = nutritionResult.rows;
 
     // Calculate totals

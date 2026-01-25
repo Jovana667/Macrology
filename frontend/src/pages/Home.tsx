@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { getFoods } from "../services/api";
+import { getFoods, createMeal } from "../services/api";
 
 function Home() {
   const navigate = useNavigate();
@@ -9,6 +9,7 @@ function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [mealName, setMealName] = useState("");
   const [visibleCounts, setVisibleCounts] = useState({
     protein: 15,
     carbs: 15,
@@ -88,7 +89,7 @@ function Home() {
     setMealFoods(updatedMealFoods);
   };
 
-  const calculateMealTotal = (mealType, metric) => {
+  const calculateMealTotal = (mealType: string, metric: string) => {
     return mealFoods[mealType].reduce((total, food) => {
       return total + food[`${metric}_per_100g`] * food.serving;
     }, 0);
@@ -119,6 +120,61 @@ function Home() {
       calculateMealTotal("dinner", metric) +
       calculateMealTotal("snack", metric)
     );
+  };
+
+  const handleSaveMeal = async () => {
+    // Step 1: Check if user is logged in
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Please log in to save your meal.");
+      return;
+    }
+    // Step 2: Transform mealFoods to backend format
+    const transformedFoods = {
+      breakfast: mealFoods.breakfast.map((food) => ({
+        food_id: food.id,
+        quantity_g: food.serving * 100,
+      })),
+      lunch: mealFoods.lunch.map((food) => ({
+        food_id: food.id,
+        quantity_g: food.serving * 100,
+      })),
+      dinner: mealFoods.dinner.map((food) => ({
+        food_id: food.id,
+        quantity_g: food.serving * 100,
+      })),
+      snack: mealFoods.snack.map((food) => ({
+        food_id: food.id,
+        quantity_g: food.serving * 100,
+      })),
+    };
+
+    // Step 3: Prepare the meal data
+    const mealData = {
+      name: mealName,
+      is_template: true,
+      meal_date: new Date().toISOString().split("T")[0], // Today's date
+      foods: transformedFoods,
+    };
+    if (!mealName.trim()) {
+      alert("Please enter a meal plan name");
+      return;
+    }
+    // Step 4: Send to backend
+    try {
+      const response = await createMeal(mealData);
+      alert("Meal saved successfully!");
+      // clear form
+      setMealFoods({
+        breakfast: [],
+        lunch: [],
+        dinner: [],
+        snack: [],
+      });
+    } catch (error) {
+      alert("Failed to save meal");
+      console.error("Error saving meal:", error);
+    }
   };
 
   const handleLogout = () => {
@@ -186,6 +242,17 @@ function Home() {
           {/* Left side - Meal Planner (2/3 width) */}
           <div className="lg:col-span-2 order-2 lg:order-1 bg-white rounded-lg shadow p-6">
             <h2 className="text-2xl font-semibold mb-4">Meal Planner</h2>
+
+            {/* Meal Name Input */}
+            <div className="mb-4">
+              <input
+                type="text"
+                placeholder="Enter meal plan name (e.g., Summer Cut Week 1)"
+                value={mealName}
+                onChange={(e) => setMealName(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
 
             {/* Placeholder for meal structure */}
             <div className="space-y-6">
@@ -466,7 +533,9 @@ function Home() {
               </div>
             </div>
             <div style={{ display: "flex", justifyContent: "space-between" }}>
-              <button className="mt-6 bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700">
+              <button 
+              onClick={handleSaveMeal}
+              className="mt-6 bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700">
                 Save Meal
               </button>
               {/* Grand Total */}

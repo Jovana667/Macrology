@@ -31,9 +31,21 @@ CREATE TABLE IF NOT EXISTS foods (
 -- Meals table 
 CREATE TABLE IF NOT EXISTS meals (
     id SERIAL PRIMARY KEY,
+    meal_plan_id INTEGER NOT NULL REFERENCES meal_plans(id) ON DELETE CASCADE,  -- NEW!
     user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     meal_type VARCHAR(50) NOT NULL,  -- 'Breakfast', 'Lunch', 'Dinner', 'Snack'
     meal_date DATE NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- meal_plans table
+CREATE TABLE IF NOT EXISTS meal_plans (
+    id SERIAL PRIMARY KEY,  -- Need an ID as primary key!
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    name VARCHAR(100) NOT NULL,  -- "Summer Cut Week 1"
+    is_template BOOLEAN DEFAULT TRUE,
+    meal_date DATE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
