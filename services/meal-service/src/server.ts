@@ -8,6 +8,11 @@ import cors from "cors";
 import mealRoutes from "./routes/mealRoutes";
 import pool from "./utils/db";
 
+// Add this debug line
+pool.query("SELECT current_database()").then(result => {
+  console.log("Connected to database:", result.rows[0].current_database);
+});
+
 const app: Express = express();
 const PORT = process.env.PORT || 3003;
 

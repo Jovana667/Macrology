@@ -29,63 +29,65 @@ export const createMeal = async (req: Request, res: Response) => {
       return res.status(400).json({ error: "Meal name is required" });
     }
 
-if (!foods || typeof foods !== 'object') {
-  return res.status(400).json({ error: "Foods object is required" });
-}
-// Check if at least one meal has foods
-const totalFoods = 
-  (foods.breakfast?.length || 0) +
-  (foods.lunch?.length || 0) +
-  (foods.dinner?.length || 0) +
-  (foods.snack?.length || 0);
-
-if (totalFoods === 0) {
-  return res.status(400).json({ error: "At least one food item is required" });
-}
-
-// Validate each meal type's foods
-for (const mealType of ['breakfast', 'lunch', 'dinner', 'snack']) {
-  const mealFoods = foods[mealType] || [];
-  
-  for (const food of mealFoods) {
-    if (!food.food_id) {
-      return res.status(400).json({ 
-        error: `Each food in ${mealType} must have a food_id` 
-      });
+    if (!foods || typeof foods !== "object") {
+      return res.status(400).json({ error: "Foods object is required" });
     }
-    if (!food.quantity_g) {
-      return res.status(400).json({ 
-        error: `Each food in ${mealType} must have quantity_g` 
-      });
+    // Check if at least one meal has foods
+    const totalFoods =
+      (foods.breakfast?.length || 0) +
+      (foods.lunch?.length || 0) +
+      (foods.dinner?.length || 0) +
+      (foods.snack?.length || 0);
+
+    if (totalFoods === 0) {
+      return res
+        .status(400)
+        .json({ error: "At least one food item is required" });
     }
-  }
-}
 
-// NEW - collect all food_ids from all meals
-const foodIds: number[] = [];
-for (const mealType of ['breakfast', 'lunch', 'dinner', 'snack']) {
-  const mealFoods = foods[mealType] || [];
-  for (const food of mealFoods) {
-    foodIds.push(food.food_id);
-  }
-}
+    // Validate each meal type's foods
+    for (const mealType of ["breakfast", "lunch", "dinner", "snack"]) {
+      const mealFoods = foods[mealType] || [];
 
-// Only check if there are foods to validate
-if (foodIds.length > 0) {
-  const foodCheckQuery = `SELECT id FROM foods WHERE id = ANY($1)`;
-  const foodCheckResult = await client.query(foodCheckQuery, [foodIds]);
+      for (const food of mealFoods) {
+        if (!food.food_id) {
+          return res.status(400).json({
+            error: `Each food in ${mealType} must have a food_id`,
+          });
+        }
+        if (!food.quantity_g) {
+          return res.status(400).json({
+            error: `Each food in ${mealType} must have quantity_g`,
+          });
+        }
+      }
+    }
 
-  const existingFoodIds = foodCheckResult.rows.map((row) => row.id);
-  const invalidFoodIds = foodIds.filter(
-    (id) => !existingFoodIds.includes(id)
-  );
+    // NEW - collect all food_ids from all meals
+    const foodIds: number[] = [];
+    for (const mealType of ["breakfast", "lunch", "dinner", "snack"]) {
+      const mealFoods = foods[mealType] || [];
+      for (const food of mealFoods) {
+        foodIds.push(food.food_id);
+      }
+    }
 
-  if (invalidFoodIds.length > 0) {
-    return res.status(404).json({
-      error: `Invalid food IDs: ${invalidFoodIds.join(", ")}`,
-    });
-  }
-}
+    // Only check if there are foods to validate
+    if (foodIds.length > 0) {
+      const foodCheckQuery = `SELECT id FROM foods WHERE id = ANY($1)`;
+      const foodCheckResult = await client.query(foodCheckQuery, [foodIds]);
+
+      const existingFoodIds = foodCheckResult.rows.map((row) => row.id);
+      const invalidFoodIds = foodIds.filter(
+        (id) => !existingFoodIds.includes(id),
+      );
+
+      if (invalidFoodIds.length > 0) {
+        return res.status(404).json({
+          error: `Invalid food IDs: ${invalidFoodIds.join(", ")}`,
+        });
+      }
+    }
 
     // STEP 4: BEGIN TRANSACTION
     // This ensures all-or-nothing: either everything succeeds or nothing is saved
@@ -104,105 +106,71 @@ if (foodIds.length > 0) {
       is_template || false,
       meal_date || new Date().toISOString().split("T")[0],
     ]);
-
     const mealPlan = mealResult.rows[0];
     const mealPlanId = mealPlan.id;
 
-    // STEP 6: Insert all meal_foods records
-    const mealTypes = ['Breakfast', 'Lunch', 'Dinner', 'Snack'];
+    // STEP 6: Insert the four meal records and their foods
+    const mealTypes = ["breakfast", "lunch", "dinner", "snack"];
+    const insertedFoods: any[] = [];
 
-    for (const food of foods) {
-      const insertFoodQuery = `
-        INSERT INTO meal_foods (meal_id, food_id, servings, quantity_g)
-        VALUES ($1, $2, $3, $4)
-        RETURNING id, meal_id, food_id, servings, quantity_g, created_at
-      `;
+    for (const mealType of mealTypes) {
+      // Insert meal record
+      const insertMealQuery = `
+    INSERT INTO meals (meal_plan_id, user_id, meal_type, meal_date)
+    VALUES ($1, $2, $3, $4)
+    RETURNING id
+  `;
 
-      const foodResult = await client.query(insertFoodQuery, [
+      const mealResult = await client.query(insertMealQuery, [
         mealPlanId,
-        food.food_id,
-        food.servings || null,
-        food.quantity_g || null,
+        userId,
+        mealType,
+        meal_date || new Date().toISOString().split("T")[0],
       ]);
 
-      insertedFoods.push(foodResult.rows[0]);
+      const mealId = mealResult.rows[0].id;
+
+      // Insert foods for THIS meal
+      const mealFoods = foods[mealType] || [];
+
+      for (const food of mealFoods) {
+        const insertFoodQuery = `
+      INSERT INTO meal_foods (meal_id, food_id, quantity_g)
+      VALUES ($1, $2, $3)
+      RETURNING id, meal_id, food_id, quantity_g, created_at
+    `;
+
+        const foodResult = await client.query(insertFoodQuery, [
+          mealId,
+          food.food_id,
+          food.quantity_g,
+        ]);
+
+        insertedFoods.push(foodResult.rows[0]);
+      }
     }
 
     // STEP 7: COMMIT TRANSACTION
-    // All queries succeeded, so save everything to the database
     await client.query("COMMIT");
 
-    // STEP 8: Calculate total macros
-    // Query the foods to get their nutrition info
-    const nutritionQuery = `
-      SELECT 
-        f.id,
-        f.name,
-        f.category,
-        f.protein_per_100g,
-        f.fat_per_100g,
-        f.carbs_per_100g,
-        f.calories_per_100g,
-        mf.servings,
-        mf.quantity_g
-      FROM meal_foods mf
-      JOIN foods f ON mf.food_id = f.id
-      WHERE mf.meal_id = $1
-    `;
-
-    const nutritionResult = await client.query(nutritionQuery, [mealPlanId]);
-    const foodsWithNutrition = nutritionResult.rows;
-
-    // Calculate totals
-    let totalProtein = 0;
-    let totalFat = 0;
-    let totalCarbs = 0;
-    let totalCalories = 0;
-
-    foodsWithNutrition.forEach((food: any) => {
-      // Use quantity_g if provided, otherwise assume 100g per serving
-      const grams = food.quantity_g || food.servings * 100;
-      const multiplier = grams / 100;
-
-      totalProtein += food.protein_per_100g * multiplier;
-      totalFat += food.fat_per_100g * multiplier;
-      totalCarbs += food.carbs_per_100g * multiplier;
-      totalCalories += food.calories_per_100g * multiplier;
-    });
-
-    // STEP 9: Return created meal with full details
+    // STEP 8: Return success
     res.status(201).json({
-      message: "Meal created successfully",
-      meal: {
-        ...meal,
-        foods: foodsWithNutrition.map((f: any) => ({
-          id: f.id,
-          name: f.name,
-          category: f.category,
-          servings: f.servings,
-          quantity_g: f.quantity_g,
-          protein_per_100g: f.protein_per_100g,
-          fat_per_100g: f.fat_per_100g,
-          carbs_per_100g: f.carbs_per_100g,
-          calories_per_100g: f.calories_per_100g,
-        })),
-      },
-      totals: {
-        total_protein: Math.round(totalProtein * 100) / 100,
-        total_fat: Math.round(totalFat * 100) / 100,
-        total_carbs: Math.round(totalCarbs * 100) / 100,
-        total_calories: Math.round(totalCalories * 100) / 100,
+      message: "Meal plan created successfully",
+      meal_plan: {
+        id: mealPlan.id,
+        user_id: mealPlan.user_id,
+        name: mealPlan.name,
+        is_template: mealPlan.is_template,
+        meal_date: mealPlan.meal_date,
+        created_at: mealPlan.created_at,
+        updated_at: mealPlan.updated_at,
       },
     });
   } catch (error) {
-    // ROLLBACK TRANSACTION on error
-    // This undoes all database changes if anything failed
     await client.query("ROLLBACK");
-
     console.error("Create meal error:", error);
     res.status(500).json({ error: "Failed to create meal" });
   } finally {
-    // Always release the client back to the pool
     client.release();
   }
 };
