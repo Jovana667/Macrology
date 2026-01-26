@@ -29,43 +29,63 @@ export const createMeal = async (req: Request, res: Response) => {
       return res.status(400).json({ error: "Meal name is required" });
     }
 
-    if (!foods || !Array.isArray(foods) || foods.length === 0) {
-      return res.status(400).json({
-        error: "At least one food item is required",
+if (!foods || typeof foods !== 'object') {
+  return res.status(400).json({ error: "Foods object is required" });
+}
+// Check if at least one meal has foods
+const totalFoods = 
+  (foods.breakfast?.length || 0) +
+  (foods.lunch?.length || 0) +
+  (foods.dinner?.length || 0) +
+  (foods.snack?.length || 0);
+
+if (totalFoods === 0) {
+  return res.status(400).json({ error: "At least one food item is required" });
+}
+
+// Validate each meal type's foods
+for (const mealType of ['breakfast', 'lunch', 'dinner', 'snack']) {
+  const mealFoods = foods[mealType] || [];
+  
+  for (const food of mealFoods) {
+    if (!food.food_id) {
+      return res.status(400).json({ 
+        error: `Each food in ${mealType} must have a food_id` 
       });
     }
-
-    // Validate each food item has required fields
-    for (const food of foods) {
-      if (!food.food_id) {
-        return res.status(400).json({
-          error: "Each food must have a food_id",
-        });
-      }
-      if (!food.servings && !food.quantity_g) {
-        return res.status(400).json({
-          error: "Each food must have either servings or quantity_g",
-        });
-      }
-    }
-
-    // STEP 3: Validate that all food IDs exist in database
-    const foodIds = foods.map((f) => f.food_id);
-    const foodCheckQuery = `
-      SELECT id FROM foods WHERE id = ANY($1)
-    `;
-    const foodCheckResult = await client.query(foodCheckQuery, [foodIds]);
-
-    const existingFoodIds = foodCheckResult.rows.map((row) => row.id);
-    const invalidFoodIds = foodIds.filter(
-      (id) => !existingFoodIds.includes(id),
-    );
-
-    if (invalidFoodIds.length > 0) {
-      return res.status(404).json({
-        error: `Invalid food IDs: ${invalidFoodIds.join(", ")}`,
+    if (!food.quantity_g) {
+      return res.status(400).json({ 
+        error: `Each food in ${mealType} must have quantity_g` 
       });
     }
+  }
+}
+
+// NEW - collect all food_ids from all meals
+const foodIds: number[] = [];
+for (const mealType of ['breakfast', 'lunch', 'dinner', 'snack']) {
+  const mealFoods = foods[mealType] || [];
+  for (const food of mealFoods) {
+    foodIds.push(food.food_id);
+  }
+}
+
+// Only check if there are foods to validate
+if (foodIds.length > 0) {
+  const foodCheckQuery = `SELECT id FROM foods WHERE id = ANY($1)`;
+  const foodCheckResult = await client.query(foodCheckQuery, [foodIds]);
+
+  const existingFoodIds = foodCheckResult.rows.map((row) => row.id);
+  const invalidFoodIds = foodIds.filter(
+    (id) => !existingFoodIds.includes(id)
+  );
+
+  if (invalidFoodIds.length > 0) {
+    return res.status(404).json({
+      error: `Invalid food IDs: ${invalidFoodIds.join(", ")}`,
+    });
+  }
+}
 
     // STEP 4: BEGIN TRANSACTION
     // This ensures all-or-nothing: either everything succeeds or nothing is saved

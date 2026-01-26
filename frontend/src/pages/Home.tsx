@@ -160,6 +160,8 @@ function Home() {
       alert("Please enter a meal plan name");
       return;
     }
+      console.log('Sending meal data:', JSON.stringify(mealData, null, 2));
+
     // Step 4: Send to backend
     try {
       const response = await createMeal(mealData);
