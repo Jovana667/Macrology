@@ -173,6 +173,7 @@ function Home() {
         dinner: [],
         snack: [],
       });
+        setMealName(""); 
     } catch (error) {
       alert("Failed to save meal");
       console.error("Error saving meal:", error);

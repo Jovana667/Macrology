@@ -1,9 +1,11 @@
+import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { getMeals } from "../services/api";
 import { Meal } from "../types";
 
 function Meals() {
+    const navigate = useNavigate();
   const [meals, setMeals] = useState<Meal[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
