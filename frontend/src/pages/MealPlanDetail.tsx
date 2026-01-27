@@ -9,6 +9,14 @@ function MealPlanDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const calculateGrandTotal = (metric) => {
+    return (
+      calculateMealTotal("breakfast", metric) +
+      calculateMealTotal("lunch", metric) +
+      calculateMealTotal("dinner", metric) +
+      calculateMealTotal("snack", metric)
+    );
+  };
   useEffect(() => {
     const fetchMealPlan = async () => {
       try {
@@ -24,7 +32,7 @@ function MealPlanDetail() {
             headers: {
               Authorization: `Bearer ${token}`,
             },
-          }
+          },
         );
 
         setMealPlan(response.data);
@@ -55,125 +63,135 @@ function MealPlanDetail() {
       <div className="max-w-7xl mx-auto">
         <header className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">{mealPlan.name}</h1>
+            <h1 className="text-3xl font-bold text-gray-900">
+              {mealPlan.name}
+            </h1>
             <p className="text-gray-600">
               Created: {new Date(mealPlan.created_at).toLocaleDateString()}
             </p>
           </div>
-          <Link
-            to="/meals"
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-          >
-            Back to Meals
-          </Link>
+          <div className="space-x-4">
+            <Link to="/" className="text-blue-600 hover:text-blue-800">
+              Home
+            </Link>
+            <Link
+              to="/meals"
+              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            >
+              Back to Meals
+            </Link>
+          </div>
         </header>
 
-        <div className="space-y-6">
-          {/* Breakfast */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold mb-4">
-              Breakfast: {calculateMealTotal("breakfast", "calories").toFixed(1)} cal,{" "}
-              {calculateMealTotal("breakfast", "protein").toFixed(1)}g protein,{" "}
-              {calculateMealTotal("breakfast", "carbs").toFixed(1)}g carbs,{" "}
-              {calculateMealTotal("breakfast", "fat").toFixed(1)}g fats
-            </h2>
-            <div className="space-y-2">
-              {mealPlan.meals.breakfast.map((food: any, index: number) => (
-                <div key={index} className="p-3 bg-gray-50 rounded">
-                  <div className="font-medium">{food.name}</div>
-                  <div className="text-sm text-gray-600">
-                    Serving: {food.serving} x 100g | 
-                    Calories: {(food.calories_per_100g * food.serving).toFixed(1)} | 
-                    Protein: {(food.protein_per_100g * food.serving).toFixed(1)}g | 
-                    Carbs: {(food.carbs_per_100g * food.serving).toFixed(1)}g | 
-                    Fats: {(food.fat_per_100g * food.serving).toFixed(1)}g
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left side - Meal Planner (2/3 width) */}
+          <div className="lg:col-span-2 order-2 lg:order-1 bg-white rounded-lg shadow p-6">
+            {/* Breakfast */}
+            <div className="bg-white rounded-lg shadow p-6">
+              <h2 className="text-xl font-semibold mb-4">Breakfast: </h2>
+              <div className="space-y-2">
+                {mealPlan.meals.breakfast.map((food: any, index: number) => (
+                  <div key={index} className="p-3 bg-gray-50 rounded">
+                    <div className="font-medium">{food.name}</div>
+                    <div className="text-sm text-gray-600">
+                      Serving: {food.serving} x 100g | Calories:{" "}
+                      {(food.calories_per_100g * food.serving).toFixed(1)} |
+                      Protein:{" "}
+                      {(food.protein_per_100g * food.serving).toFixed(1)}g |
+                      Carbs: {(food.carbs_per_100g * food.serving).toFixed(1)}g
+                      | Fats: {(food.fat_per_100g * food.serving).toFixed(1)}g
+                    </div>
                   </div>
-                </div>
-              ))}
-              {mealPlan.meals.breakfast.length === 0 && (
-                <p className="text-gray-400">No foods</p>
-              )}
+                ))}
+                {mealPlan.meals.breakfast.length === 0 && (
+                  <p className="text-gray-400">No foods</p>
+                )}
+              </div>
             </div>
-          </div>
 
-          {/* Lunch */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold mb-4">
-              Lunch: {calculateMealTotal("lunch", "calories").toFixed(1)} cal,{" "}
-              {calculateMealTotal("lunch", "protein").toFixed(1)}g protein,{" "}
-              {calculateMealTotal("lunch", "carbs").toFixed(1)}g carbs,{" "}
-              {calculateMealTotal("lunch", "fat").toFixed(1)}g fats
-            </h2>
-            <div className="space-y-2">
-              {mealPlan.meals.lunch.map((food: any, index: number) => (
-                <div key={index} className="p-3 bg-gray-50 rounded">
-                  <div className="font-medium">{food.name}</div>
-                  <div className="text-sm text-gray-600">
-                    Serving: {food.serving} x 100g | 
-                    Calories: {(food.calories_per_100g * food.serving).toFixed(1)} | 
-                    Protein: {(food.protein_per_100g * food.serving).toFixed(1)}g | 
-                    Carbs: {(food.carbs_per_100g * food.serving).toFixed(1)}g | 
-                    Fats: {(food.fat_per_100g * food.serving).toFixed(1)}g
+            {/* Lunch */}
+            <div className="bg-white rounded-lg shadow p-6">
+              <h2 className="text-xl font-semibold mb-4">Lunch: </h2>
+              <div className="space-y-2">
+                {mealPlan.meals.lunch.map((food: any, index: number) => (
+                  <div key={index} className="p-3 bg-gray-50 rounded">
+                    <div className="font-medium">{food.name}</div>
+                    <div className="text-sm text-gray-600">
+                      Serving: {food.serving} x 100g | Calories:{" "}
+                      {(food.calories_per_100g * food.serving).toFixed(1)} |
+                      Protein:{" "}
+                      {(food.protein_per_100g * food.serving).toFixed(1)}g |
+                      Carbs: {(food.carbs_per_100g * food.serving).toFixed(1)}g
+                      | Fats: {(food.fat_per_100g * food.serving).toFixed(1)}g
+                    </div>
                   </div>
-                </div>
-              ))}
-              {mealPlan.meals.lunch.length === 0 && (
-                <p className="text-gray-400">No foods</p>
-              )}
+                ))}
+                {mealPlan.meals.lunch.length === 0 && (
+                  <p className="text-gray-400">No foods</p>
+                )}
+              </div>
             </div>
-          </div>
 
-          {/* Dinner */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold mb-4">
-              Dinner: {calculateMealTotal("dinner", "calories").toFixed(1)} cal,{" "}
-              {calculateMealTotal("dinner", "protein").toFixed(1)}g protein,{" "}
-              {calculateMealTotal("dinner", "carbs").toFixed(1)}g carbs,{" "}
-              {calculateMealTotal("dinner", "fat").toFixed(1)}g fats
-            </h2>
-            <div className="space-y-2">
-              {mealPlan.meals.dinner.map((food: any, index: number) => (
-                <div key={index} className="p-3 bg-gray-50 rounded">
-                  <div className="font-medium">{food.name}</div>
-                  <div className="text-sm text-gray-600">
-                    Serving: {food.serving} x 100g | 
-                    Calories: {(food.calories_per_100g * food.serving).toFixed(1)} | 
-                    Protein: {(food.protein_per_100g * food.serving).toFixed(1)}g | 
-                    Carbs: {(food.carbs_per_100g * food.serving).toFixed(1)}g | 
-                    Fats: {(food.fat_per_100g * food.serving).toFixed(1)}g
+            {/* Dinner */}
+            <div className="bg-white rounded-lg shadow p-6">
+              <h2 className="text-xl font-semibold mb-4">Dinner: </h2>
+              <div className="space-y-2">
+                {mealPlan.meals.dinner.map((food: any, index: number) => (
+                  <div key={index} className="p-3 bg-gray-50 rounded">
+                    <div className="font-medium">{food.name}</div>
+                    <div className="text-sm text-gray-600">
+                      Serving: {food.serving} x 100g | Calories:{" "}
+                      {(food.calories_per_100g * food.serving).toFixed(1)} |
+                      Protein:{" "}
+                      {(food.protein_per_100g * food.serving).toFixed(1)}g |
+                      Carbs: {(food.carbs_per_100g * food.serving).toFixed(1)}g
+                      | Fats: {(food.fat_per_100g * food.serving).toFixed(1)}g
+                    </div>
                   </div>
-                </div>
-              ))}
-              {mealPlan.meals.dinner.length === 0 && (
-                <p className="text-gray-400">No foods</p>
-              )}
+                ))}
+                {mealPlan.meals.dinner.length === 0 && (
+                  <p className="text-gray-400">No foods</p>
+                )}
+              </div>
             </div>
-          </div>
 
-          {/* Snack */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold mb-4">
-              Snack: {calculateMealTotal("snack", "calories").toFixed(1)} cal,{" "}
-              {calculateMealTotal("snack", "protein").toFixed(1)}g protein,{" "}
-              {calculateMealTotal("snack", "carbs").toFixed(1)}g carbs,{" "}
-              {calculateMealTotal("snack", "fat").toFixed(1)}g fats
-            </h2>
-            <div className="space-y-2">
-              {mealPlan.meals.snack.map((food: any, index: number) => (
-                <div key={index} className="p-3 bg-gray-50 rounded">
-                  <div className="font-medium">{food.name}</div>
-                  <div className="text-sm text-gray-600">
-                    Serving: {food.serving} x 100g | 
-                    Calories: {(food.calories_per_100g * food.serving).toFixed(1)} | 
-                    Protein: {(food.protein_per_100g * food.serving).toFixed(1)}g | 
-                    Carbs: {(food.carbs_per_100g * food.serving).toFixed(1)}g | 
-                    Fats: {(food.fat_per_100g * food.serving).toFixed(1)}g
+            {/* Snack */}
+            <div className="bg-white rounded-lg shadow p-6">
+              <h2 className="text-xl font-semibold mb-4">Snack: </h2>
+              <div className="space-y-2">
+                {mealPlan.meals.snack.map((food: any, index: number) => (
+                  <div key={index} className="p-3 bg-gray-50 rounded">
+                    <div className="font-medium">{food.name}</div>
+                    <div className="text-sm text-gray-600">
+                      Serving: {food.serving} x 100g | Calories:{" "}
+                      {(food.calories_per_100g * food.serving).toFixed(1)} |
+                      Protein:{" "}
+                      {(food.protein_per_100g * food.serving).toFixed(1)}g |
+                      Carbs: {(food.carbs_per_100g * food.serving).toFixed(1)}g
+                      | Fats: {(food.fat_per_100g * food.serving).toFixed(1)}g
+                    </div>
                   </div>
-                </div>
-              ))}
-              {mealPlan.meals.snack.length === 0 && (
-                <p className="text-gray-400">No foods</p>
-              )}
+                ))}
+                {mealPlan.meals.snack.length === 0 && (
+                  <p className="text-gray-400">No foods</p>
+                )}
+              </div>
+            </div>
+
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <button className="mt-6 bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700">
+                Edit Meal
+              </button>
+              {/* Grand Total */}
+              <div className="bg-white rounded-lg shadow p-6">
+                <h2 className="text-xl font-semibold mb-4">
+                  Grand Total Calories:{" "}
+                  {calculateGrandTotal("calories").toFixed(1)} cal, Protein:{" "}
+                  {calculateGrandTotal("protein").toFixed(1)}g, Carbs:{" "}
+                  {calculateGrandTotal("carbs").toFixed(1)}g, Fats:{" "}
+                  {calculateGrandTotal("fat").toFixed(1)}g
+                </h2>
+              </div>
             </div>
           </div>
         </div>
