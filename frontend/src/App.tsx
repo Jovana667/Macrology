@@ -5,6 +5,7 @@ import Register from "./pages/Register";
 import Profile from "./pages/Profile";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Meals from "./pages/Meals";
+import MealPlanDetail from "./pages/MealPlanDetail";
 
 function App() {
   return (
@@ -26,6 +27,8 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route path="/meal-plan/:id" element={<MealPlanDetail />} />
+
       </Routes>
     </BrowserRouter>
   );

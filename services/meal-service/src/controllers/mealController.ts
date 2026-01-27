@@ -177,42 +177,33 @@ export const createMeal = async (req: Request, res: Response) => {
 
 export const getMeals = async (req: Request, res: Response) => {
   try {
-    // STEP 1: Get authenticated user's ID from the token
     const userId = req.user?.id;
 
     if (!userId) {
       return res.status(401).json({ error: "User not authenticated" });
     }
 
-    // STEP 2: Extract pagination parameters from query string
-    // Example: /api/meals?page=2&pageSize=10
     const page = parseInt(req.query.page as string) || 1;
     const pageSize = parseInt(req.query.pageSize as string) || 20;
-
-    // Calculate offset for pagination
-    // Page 1: skip 0 items
-    // Page 2: skip 20 items
-    // Page 3: skip 40 items
     const offset = (page - 1) * pageSize;
 
-    // STEP 3: Query meals with food count
-    // LEFT JOIN ensures we get meals even if they have 0 foods
-    // GROUP BY is required when using COUNT()
+    // Query meal_plans instead of meals
     const mealsQuery = `
       SELECT 
-        m.id,
-        m.name,
-        m.meal_type,
-        m.meal_date,
-        m.is_template,
-        m.created_at,
-        m.updated_at,
+        mp.id,
+        mp.name,
+        mp.is_template,
+        mp.meal_date,
+        mp.created_at,
+        mp.updated_at,
+        COUNT(DISTINCT m.id)::INTEGER as meal_count,
         COUNT(mf.id)::INTEGER as food_count
-      FROM meals m
+      FROM meal_plans mp
+      LEFT JOIN meals m ON mp.id = m.meal_plan_id
       LEFT JOIN meal_foods mf ON m.id = mf.meal_id
-      WHERE m.user_id = $1
-      GROUP BY m.id
-      ORDER BY m.created_at DESC
+      WHERE mp.user_id = $1
+      GROUP BY mp.id
+      ORDER BY mp.created_at DESC
       LIMIT $2 OFFSET $3
     `;
 
@@ -222,17 +213,15 @@ export const getMeals = async (req: Request, res: Response) => {
       offset,
     ]);
 
-    // STEP 4: Get total count of user's meals (for pagination)
     const countQuery = `
       SELECT COUNT(*)::INTEGER as total
-      FROM meals
+      FROM meal_plans
       WHERE user_id = $1
     `;
 
     const countResult = await pool.query(countQuery, [userId]);
     const total = countResult.rows[0].total;
 
-    // STEP 5: Return paginated response
     res.status(200).json({
       meals: mealsResult.rows,
       total: total,
@@ -377,5 +366,97 @@ export const getMealById = async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Get meal by ID error:", error);
     res.status(500).json({ error: "Failed to retrieve meal" });
+  }
+};
+
+  export const getMealPlanById = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    const mealPlanId = parseInt(req.params.id);
+
+    if (!userId) {
+      return res.status(401).json({ error: "User not authenticated" });
+    }
+
+    if (isNaN(mealPlanId)) {
+      return res.status(400).json({ error: "Invalid meal plan ID" });
+    }
+
+    // Get meal plan info
+    const mealPlanQuery = `
+      SELECT id, user_id, name, is_template, meal_date, created_at, updated_at
+      FROM meal_plans
+      WHERE id = $1 AND user_id = $2
+    `;
+
+    const mealPlanResult = await pool.query(mealPlanQuery, [mealPlanId, userId]);
+
+    if (mealPlanResult.rows.length === 0) {
+      return res.status(404).json({ error: "Meal plan not found" });
+    }
+
+    const mealPlan = mealPlanResult.rows[0];
+
+    // Get all meals in this plan with their foods
+    const mealsQuery = `
+      SELECT 
+        m.id as meal_id,
+        m.meal_type,
+        mf.id as meal_food_id,
+        mf.food_id,
+        mf.quantity_g,
+        f.name,
+        f.category,
+        f.protein_per_100g,
+        f.fat_per_100g,
+        f.carbs_per_100g,
+        f.calories_per_100g
+      FROM meals m
+      LEFT JOIN meal_foods mf ON m.id = mf.meal_id
+      LEFT JOIN foods f ON mf.food_id = f.id
+      WHERE m.meal_plan_id = $1
+      ORDER BY 
+        CASE m.meal_type
+          WHEN 'breakfast' THEN 1
+          WHEN 'lunch' THEN 2
+          WHEN 'dinner' THEN 3
+          WHEN 'snack' THEN 4
+        END,
+        mf.created_at
+    `;
+
+    const mealsResult = await pool.query(mealsQuery, [mealPlanId]);
+
+    // Group foods by meal type
+    const groupedMeals = {
+      breakfast: [],
+      lunch: [],
+      dinner: [],
+      snack: [],
+    };
+
+    mealsResult.rows.forEach((row: any) => {
+      if (row.food_id) {  // Only add if there's actually a food
+        const food = {
+          id: row.food_id,
+          name: row.name,
+          category: row.category,
+          serving: row.quantity_g / 100,  // Convert back to serving units
+          protein_per_100g: parseFloat(row.protein_per_100g),
+          fat_per_100g: parseFloat(row.fat_per_100g),
+          carbs_per_100g: parseFloat(row.carbs_per_100g),
+          calories_per_100g: parseFloat(row.calories_per_100g),
+        };
+        groupedMeals[row.meal_type].push(food);
+      }
+    });
+
+    res.status(200).json({
+      ...mealPlan,
+      meals: groupedMeals,
+    });
+  } catch (error) {
+    console.error("Get meal plan error:", error);
+    res.status(500).json({ error: "Failed to retrieve meal plan" });
   }
 };

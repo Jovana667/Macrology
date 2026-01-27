@@ -47,9 +47,7 @@ function Meals() {
           <div className="text-center text-gray-500 py-8">Loading meals...</div>
         )}
 
-        {error && (
-          <div className="text-center text-red-500 py-8">{error}</div>
-        )}
+        {error && <div className="text-center text-red-500 py-8">{error}</div>}
 
         {!loading && !error && meals.length === 0 && (
           <div className="text-center text-gray-500 py-8">
@@ -61,12 +59,19 @@ function Meals() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {meals.map((meal: any) => (
               <div key={meal.id} className="bg-white rounded-lg shadow p-6">
-                <h3 className="font-semibold text-lg mb-2">{meal.name}</h3>
-                <p className="text-gray-600">Type: {meal.meal_type || "N/A"}</p>
-                <p className="text-gray-600">Foods: {meal.food_count || 0}</p>
-                <p className="text-gray-500 text-sm">
+                <h3 className="text-xl font-semibold mb-2">{meal.name}</h3>
+                <p className="text-gray-600 mb-4">
                   Created: {new Date(meal.created_at).toLocaleDateString()}
                 </p>
+                <button onClick={() => navigate(`/meal-plan/${meal.id}`)}>
+                  {" "}
+                  <Link
+                    to="/MealPlanDetails"
+                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 w-full"
+                  >
+                    View Details
+                  </Link>
+                </button>
               </div>
             ))}
           </div>
