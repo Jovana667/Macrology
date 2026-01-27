@@ -183,14 +183,13 @@ function MealPlanDetail() {
                 Edit Meal
               </button>
               {/* Grand Total */}
-              <div className="bg-white rounded-lg shadow p-6">
-                <h2 className="text-xl font-semibold mb-4">
-                  Grand Total Calories:{" "}
-                  {calculateGrandTotal("calories").toFixed(1)} cal, Protein:{" "}
-                  {calculateGrandTotal("protein").toFixed(1)}g, Carbs:{" "}
-                  {calculateGrandTotal("carbs").toFixed(1)}g, Fats:{" "}
-                  {calculateGrandTotal("fat").toFixed(1)}g
-                </h2>
+              <div className="mt-6 pt-6 ">
+                <h3 className="font-semibold text-lg">
+                  Calories: {calculateGrandTotal("calories").toFixed(1)} cal,
+                  Protein: {calculateGrandTotal("protein").toFixed(1)}g, 
+                  Carbs:{" "} {calculateGrandTotal("carbs").toFixed(1)}g, 
+                  Fats:{" "} {calculateGrandTotal("fat").toFixed(1)}g
+                </h3>
               </div>
             </div>
           </div>
